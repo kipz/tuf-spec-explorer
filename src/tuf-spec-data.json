@@ -1,0 +1,858 @@
+{
+  "spec": {
+    "version": "1.0.34",
+    "lastModified": "2026-01-22",
+    "url": "https://theupdateframework.github.io/specification/latest/",
+    "editors": [
+      "Justin Cappos (NYU)",
+      "Trishank Karthik Kuppusamy (Apple)",
+      "Joshua Lock (Verizon)",
+      "Marina Moore (Edera)",
+      "Lukas Pühringer (Eclipse)"
+    ],
+    "roles": {
+      "root": {
+        "description": "Trust anchor. Delegates trust to all other top-level roles via signed metadata.",
+        "keyPolicy": "MUST be kept offline",
+        "constraints": [
+          "Clients ship with pre-trusted root keys",
+          "Key rotation handles compromise of fewer than threshold keys",
+          "Threshold-level compromise requires out-of-band recovery"
+        ]
+      },
+      "targets": {
+        "description": "Indicates trusted target files through signed metadata (file hashes, lengths).",
+        "keyPolicy": "Offline recommended",
+        "constraints": [
+          "Can delegate full or partial trust to other roles",
+          "Delegations are transitive and revocable",
+          "Only OR-based delegations supported (any single delegated role can sign)"
+        ]
+      },
+      "snapshot": {
+        "description": "Provides consistent version information for ALL targets metadata files.",
+        "keyPolicy": "Online or offline, offline recommended",
+        "constraints": [
+          "Prevents mix-and-match attacks",
+          "Lists expected version of every targets metadata file"
+        ]
+      },
+      "timestamp": {
+        "description": "Periodically signs automated timestamped statements.",
+        "keyPolicy": "Online key acceptable",
+        "constraints": [
+          "Short-lived metadata to prevent freeze attacks",
+          "Signs over snapshot metadata hash"
+        ]
+      }
+    },
+    "attacks": [
+      "Arbitrary installation",
+      "Endless data",
+      "Extraneous dependencies",
+      "Fast-forward",
+      "Indefinite freeze",
+      "Malicious mirror interference",
+      "Mix-and-match",
+      "Rollback",
+      "Key compromise",
+      "Wrong software installation",
+      "Malicious key scenarios",
+      "Repository mirror manipulation"
+    ],
+    "constraints": {
+      "keyid_computation": {
+        "id": "C-KEYID",
+        "description": "Key IDs MUST be computed as the SHA-256 hash of the canonical JSON form of the key",
+        "specSection": "4.2",
+        "status": "active"
+      },
+      "delegation_model": {
+        "id": "C-DELEG",
+        "description": "Delegations use OR-based trust: any single delegated role meeting the threshold can sign for targets",
+        "specSection": "4.5",
+        "status": "active"
+      },
+      "single_repo_trust": {
+        "id": "C-REPO",
+        "description": "Client trusts a single repository; no mechanism for cross-repository consensus",
+        "specSection": "1.1",
+        "status": "active"
+      },
+      "key_rotation_delegator": {
+        "id": "C-KEYROT",
+        "description": "Key rotation for delegated roles requires the delegator to issue new delegation metadata",
+        "specSection": "4.5",
+        "status": "active"
+      },
+      "explicit_bin_delegation": {
+        "id": "C-BINS",
+        "description": "Hashed bin delegations require explicit enumeration of every bin in targets metadata",
+        "specSection": "4.5",
+        "status": "active"
+      },
+      "no_self_revocation": {
+        "id": "C-SELFREVOKE",
+        "description": "No mechanism for a role to revoke its own keys; revocation requires delegator action",
+        "specSection": "4.5",
+        "status": "active"
+      },
+      "metadata_types": {
+        "id": "C-META",
+        "description": "Four metadata types: root, targets, snapshot, timestamp",
+        "specSection": "4",
+        "status": "active"
+      },
+      "threshold_signing": {
+        "id": "C-THRESH",
+        "description": "Each role has a threshold of signatures required for validity",
+        "specSection": "4.3",
+        "status": "active"
+      },
+      "consistent_snapshots": {
+        "id": "C-SNAP",
+        "description": "Snapshot metadata lists version numbers for all targets metadata",
+        "specSection": "4.4",
+        "status": "active"
+      },
+      "spec_version_field": {
+        "id": "C-SPECVER",
+        "description": "All metadata MUST include spec_version field (TAP 6 — already incorporated)",
+        "specSection": "4.1",
+        "status": "active"
+      },
+      "signing_scheme_in_signed": {
+        "id": "C-SCHEME",
+        "description": "Signing scheme MUST be in the signed portion of metadata (TAP 9 — already incorporated)",
+        "specSection": "4.2",
+        "status": "active"
+      },
+      "no_compressed_metadata": {
+        "id": "C-NOCOMPRESS",
+        "description": "No native support for compressed metadata (TAP 10 — already incorporated)",
+        "specSection": "4.1",
+        "status": "active"
+      }
+    }
+  },
+  "incorporatedTaps": [
+    {
+      "tap": 6,
+      "title": "Include spec_version in metadata",
+      "status": "Final",
+      "summary": "Adds a spec_version field to all metadata types for forward compatibility."
+    },
+    {
+      "tap": 9,
+      "title": "Mandatory metadata signing schemes",
+      "status": "Final",
+      "summary": "Moves the signing scheme into the signed section of metadata to prevent signature stripping."
+    },
+    {
+      "tap": 10,
+      "title": "Remove native support for compressed metadata",
+      "status": "Final",
+      "summary": "Removes compression support to reduce complexity and attack surface."
+    },
+    {
+      "tap": 11,
+      "title": "Using POUFs for interoperability",
+      "status": "Accepted",
+      "summary": "Defines Protocol and Operations for Update Framework (POUFs) to standardize implementation-specific choices."
+    }
+  ],
+  "taps": [
+    {
+      "tap": 3,
+      "title": "Multi-role Delegations",
+      "status": "Accepted",
+      "url": "https://github.com/theupdateframework/taps/blob/master/tap3.md",
+      "summary": "Adds AND-relations in delegations, requiring N-of-M roles to agree on the same target with identical hashes/length.",
+      "dependencies": [],
+      "requiresMajorBump": false,
+      "constraintChanges": [
+        {
+          "type": "relaxed",
+          "constraintId": "C-DELEG",
+          "before": "Delegations use OR-based trust: any single delegated role meeting the threshold can sign for targets",
+          "after": "Delegations support both OR-based and AND-based trust. AND-delegations require min_roles_in_agreement roles to independently sign the same targets with matching hashes/length.",
+          "detail": "New 'keys_for_delegations' field, 'roleinfo' arrays replacing single-role delegations, 'min_roles_in_agreement' parameter."
+        },
+        {
+          "type": "added",
+          "constraintId": "C-AND-DELEG",
+          "description": "AND-delegations: multiple roles must independently provide identical target information (hashes and length) for a target to be trusted.",
+          "detail": "Adds keys_for_delegations mapping, roleinfo arrays, and min_roles_in_agreement parameter to delegation metadata."
+        }
+      ],
+      "securityImpact": {
+        "mitigates": ["Key compromise"],
+        "description": "Significantly increases compromise resilience for high-value targets by requiring multiple independent role agreements."
+      }
+    },
+    {
+      "tap": 4,
+      "title": "Multiple Repository Consensus on Entrusted Targets",
+      "status": "Accepted",
+      "url": "https://github.com/theupdateframework/taps/blob/master/tap4.md",
+      "summary": "Enables cross-repository trust where clients require multiple independent repositories to sign off on the same targets.",
+      "dependencies": [],
+      "requiresMajorBump": false,
+      "constraintChanges": [
+        {
+          "type": "relaxed",
+          "constraintId": "C-REPO",
+          "before": "Client trusts a single repository; no mechanism for cross-repository consensus",
+          "after": "Clients can require multiple independent repositories to agree on targets via a client-side map.json configuration.",
+          "detail": "New client-side map.json file with repository URLs, priority-ordered mapping list with 'terminating' flag and 'threshold' per mapping entry."
+        },
+        {
+          "type": "added",
+          "constraintId": "C-MULTIREPO",
+          "description": "Cross-repository consensus: clients can require threshold-of-N repositories to provide matching target info before trusting a target.",
+          "detail": "Client-side map.json defines repository URLs, priority-ordered target mappings, terminating flags, and per-mapping thresholds."
+        }
+      ],
+      "securityImpact": {
+        "mitigates": ["Arbitrary installation", "Key compromise", "Malicious mirror interference"],
+        "description": "Supply chain security across organizational boundaries — e.g., 'package X must be confirmed by both the OS vendor AND upstream project.'"
+      }
+    },
+    {
+      "tap": 8,
+      "title": "Key Rotation and Explicit Self-Revocation",
+      "status": "Accepted",
+      "url": "https://github.com/theupdateframework/taps/blob/master/tap8.md",
+      "summary": "Delegated roles can independently rotate their own keys without delegator intervention via an append-only rotation chain.",
+      "dependencies": [],
+      "requiresMajorBump": false,
+      "constraintChanges": [
+        {
+          "type": "relaxed",
+          "constraintId": "C-KEYROT",
+          "before": "Key rotation for delegated roles requires the delegator to issue new delegation metadata",
+          "after": "Delegated targets roles can rotate their own keys by publishing ROLE.rotate.VERSION metadata files. Root, snapshot, and timestamp roles are excluded.",
+          "detail": "New 'rotate' metadata file type (ROLE.rotate.VERSION), immutable append-only rotation chain, client workflow to process rotate files sequentially."
+        },
+        {
+          "type": "added",
+          "constraintId": "C-ROTATE-META",
+          "description": "New 'rotate' metadata type added to the four existing types (root, targets, snapshot, timestamp).",
+          "detail": "ROLE.rotate.VERSION files form an immutable append-only chain. Clients must process all rotate files sequentially before verifying current targets metadata."
+        },
+        {
+          "type": "added",
+          "constraintId": "C-ROTATE-SCOPE",
+          "description": "Self-rotation is limited to delegated targets roles only. Root, snapshot, and timestamp roles cannot self-rotate (prevents rollback attacks).",
+          "detail": "Scope limitation ensures that trust anchors and consistency roles remain under central control."
+        }
+      ],
+      "securityImpact": {
+        "mitigates": ["Key compromise"],
+        "description": "Reduces time-to-remediation for key compromise from 'wait for delegator' to 'immediate self-service.'"
+      }
+    },
+    {
+      "tap": 12,
+      "title": "Improving Keyid Flexibility",
+      "status": "Accepted",
+      "url": "https://github.com/theupdateframework/taps/blob/master/tap12.md",
+      "summary": "Removes the requirement that keyids must be SHA2-256 hashes of canonical JSON key form. Keyids become owner-determined identifiers.",
+      "dependencies": [],
+      "requiresMajorBump": false,
+      "constraintChanges": [
+        {
+          "type": "relaxed",
+          "constraintId": "C-KEYID",
+          "before": "Key IDs MUST be computed as the SHA-256 hash of the canonical JSON form of the key",
+          "after": "Key IDs are owner-determined identifiers. Only constraint is uniqueness within a metadata file. Clients match keyids in signatures to trusted keys in delegating metadata.",
+          "detail": "python-tuf 1.0 already implements this behavior, but the spec still prescribes the SHA-256 computation."
+        }
+      ],
+      "securityImpact": {
+        "mitigates": ["Key compromise"],
+        "description": "Algorithm agility, quantum resilience, easier key migration workflows. Removes dependency on SHA-256 for key identification."
+      }
+    },
+    {
+      "tap": 15,
+      "title": "Succinct Hashed Bin Delegations",
+      "status": "Accepted",
+      "url": "https://github.com/theupdateframework/taps/blob/master/tap15.md",
+      "summary": "Compact representation for hashed bin delegations using a formula instead of explicit enumeration.",
+      "dependencies": [],
+      "requiresMajorBump": true,
+      "constraintChanges": [
+        {
+          "type": "relaxed",
+          "constraintId": "C-BINS",
+          "before": "Hashed bin delegations require explicit enumeration of every bin in targets metadata",
+          "after": "Hashed bin delegations can use a succinct_roles formula with bit_length (1-32, determines 2^n bins), name_prefix, shared keyids/threshold.",
+          "detail": "For 2M files across 16K bins, metadata overhead drops from 1.25 MB to near-zero (per-package overhead from 69% to 9%)."
+        },
+        {
+          "type": "added",
+          "constraintId": "C-SUCCINCT",
+          "description": "New succinct_roles field in targets metadata with bit_length, name_prefix, shared keyids and threshold.",
+          "detail": "Backwards-incompatible: requires spec major version bump to v2.x."
+        }
+      ],
+      "incompatibilities": [
+        {
+          "description": "Requires spec v2.x major version bump — backwards-incompatible with v1.x clients.",
+          "severity": "breaking"
+        }
+      ],
+      "securityImpact": {
+        "mitigates": [],
+        "description": "No direct security impact. Primarily a scalability improvement for large repositories with many delegated bins."
+      }
+    },
+    {
+      "tap": 20,
+      "title": "Self-Revocation",
+      "status": "Accepted",
+      "url": "https://github.com/theupdateframework/taps/blob/master/tap20.md",
+      "summary": "A compromised role can revoke itself by rotating to a reserved 'null key', building on TAP 8's rotation mechanism.",
+      "dependencies": [8],
+      "requiresMajorBump": false,
+      "constraintChanges": [
+        {
+          "type": "removed",
+          "constraintId": "C-SELFREVOKE",
+          "before": "No mechanism for a role to revoke its own keys; revocation requires delegator action",
+          "after": "Roles can self-revoke by rotating to a standardized null key constant.",
+          "detail": "Standardized null key constant as rotation target. Snapshot metadata must list all rotate files."
+        },
+        {
+          "type": "added",
+          "constraintId": "C-NULLKEY",
+          "description": "Reserved null key constant that signals self-revocation when used as a rotation target.",
+          "detail": "Snapshot metadata must list all rotate files to ensure clients process revocations."
+        }
+      ],
+      "securityImpact": {
+        "mitigates": ["Key compromise"],
+        "description": "Minimizes time-to-revocation in incident response — key holders can immediately invalidate their own credentials."
+      }
+    },
+    {
+      "tap": 5,
+      "title": "Setting URLs for Roles in Root Metadata",
+      "status": "Rejected",
+      "url": "https://github.com/theupdateframework/taps/blob/master/tap5.md",
+      "summary": "Allows each top-level role in root metadata to be associated with a list of URLs, enabling per-role mirror control and restricted trust in community repositories.",
+      "dependencies": [],
+      "requiresMajorBump": false,
+      "constraintChanges": [
+        {
+          "type": "added",
+          "constraintId": "C-ROLE-URLS",
+          "description": "Each top-level role in root metadata can optionally specify a list of URLs from which its metadata should be fetched.",
+          "detail": "Enables per-role mirror assignment and restricted trust scoping within a single repository."
+        }
+      ],
+      "securityImpact": {
+        "mitigates": ["Key compromise", "Malicious mirror interference"],
+        "description": "Allows users to restrict trust in community repos to specific projects by fixing the root of trust for selected roles."
+      }
+    },
+    {
+      "tap": 7,
+      "title": "Conformance Testing",
+      "status": "Rejected",
+      "url": "https://github.com/theupdateframework/taps/blob/master/tap7.md",
+      "summary": "Defines a conformance testing framework to verify TUF implementations behave according to the specification, including attack resilience tests.",
+      "dependencies": [],
+      "requiresMajorBump": false,
+      "constraintChanges": [
+        {
+          "type": "added",
+          "constraintId": "C-CONFORMANCE",
+          "description": "Standardized test data and format for verifying TUF compliance across implementations.",
+          "detail": "Informational TAP — does not change spec constraints but provides a testing framework for verifying them."
+        }
+      ],
+      "securityImpact": {
+        "mitigates": [],
+        "description": "No direct security impact. Provides a mechanism to verify that implementations correctly resist known attacks."
+      }
+    },
+    {
+      "tap": 13,
+      "title": "User Selection of Top-Level Targets Through Mapping Metadata",
+      "status": "Draft",
+      "url": "https://github.com/theupdateframework/taps/blob/master/tap13.md",
+      "summary": "Allows different users of the same repository to select different top-level targets metadata, enabling per-client namespaces and reduced trust in repository root keys.",
+      "dependencies": [4],
+      "requiresMajorBump": false,
+      "constraintChanges": [
+        {
+          "type": "added",
+          "constraintId": "C-NAMESPACE",
+          "description": "Clients can pin to a specific top-level targets metadata file hosted on the repository, creating user-specific namespaces.",
+          "detail": "Extends TAP 4 map.json with per-repository targets metadata selection. Users can restrict trust to curated subsets of a repository."
+        }
+      ],
+      "securityImpact": {
+        "mitigates": ["Key compromise", "Arbitrary installation"],
+        "description": "Reduces blast radius of root key compromise — users who pin to a specific targets namespace are unaffected by root-level target replacement."
+      }
+    },
+    {
+      "tap": 14,
+      "title": "Managing TUF Versions",
+      "status": "Deferred",
+      "url": "https://github.com/theupdateframework/taps/blob/master/tap14.md",
+      "summary": "Defines a mechanism for repositories and clients to manage breaking spec changes via semantic versioning and multi-version metadata sets.",
+      "dependencies": [],
+      "requiresMajorBump": false,
+      "constraintChanges": [
+        {
+          "type": "added",
+          "constraintId": "C-SEMVER",
+          "description": "The TUF specification MUST use semantic versioning. Repositories MAY serve metadata for multiple spec versions simultaneously.",
+          "detail": "Clients select the most recent spec version supported by both client and repository. Enables graceful migration across breaking changes."
+        },
+        {
+          "type": "added",
+          "constraintId": "C-MULTIVERSION",
+          "description": "Repositories can maintain parallel metadata sets for different spec versions in version-prefixed directories.",
+          "detail": "Enables rolling upgrades where clients and repositories can independently migrate to new spec versions."
+        }
+      ],
+      "securityImpact": {
+        "mitigates": [],
+        "description": "No direct security impact. Ensures continuity of secure updates during specification version transitions."
+      }
+    },
+    {
+      "tap": 16,
+      "title": "Snapshot Merkle Trees",
+      "status": "Draft",
+      "url": "https://github.com/theupdateframework/taps/blob/master/tap16.md",
+      "summary": "Replaces the monolithic snapshot metadata file with a Merkle tree structure, reducing per-client download from O(N) to O(log N) for repositories with many delegations.",
+      "dependencies": [],
+      "requiresMajorBump": false,
+      "constraintChanges": [
+        {
+          "type": "relaxed",
+          "constraintId": "C-SNAP",
+          "before": "Snapshot metadata lists version numbers for all targets metadata",
+          "after": "Snapshot can use a Merkle tree where each leaf contains a targets metadata version. Clients download only the Merkle path for their target, verified against the tree root in timestamp metadata.",
+          "detail": "Requires third-party auditors to verify full tree consistency (rollback protection). Reduces snapshot from ~380MB to ~800B for 50M targets metadata files."
+        }
+      ],
+      "securityImpact": {
+        "mitigates": ["Endless data"],
+        "description": "Reduces snapshot download size, limiting the endless data attack surface for snapshot metadata."
+      }
+    },
+    {
+      "tap": 17,
+      "title": "Remove Signature Wrapper from Specification",
+      "status": "Draft",
+      "url": "https://github.com/theupdateframework/taps/blob/master/tap17.md",
+      "summary": "Removes the specific signature wrapper definition from the spec, replacing it with required properties. Implementations choose their own envelope format via POUFs.",
+      "dependencies": [11, 14],
+      "requiresMajorBump": false,
+      "constraintChanges": [
+        {
+          "type": "relaxed",
+          "constraintId": "C-SCHEME",
+          "before": "Signing scheme MUST be in the signed portion of metadata (TAP 9 — already incorporated)",
+          "after": "Signature wrapper is implementation-defined via POUFs. Spec defines required properties (authenticated payload type, multiple signatures, keyid hints) rather than a specific format.",
+          "detail": "Eliminates canonicalization dependency for signature verification. Enables adoption of modern envelope formats (e.g., DSSE)."
+        }
+      ],
+      "securityImpact": {
+        "mitigates": [],
+        "description": "Removes canonicalization as a security-critical step, reducing implementation complexity and potential for verification bugs."
+      }
+    },
+    {
+      "tap": 18,
+      "title": "Ephemeral Identity Verification via Sigstore Fulcio",
+      "status": "Draft",
+      "url": "https://github.com/theupdateframework/taps/blob/master/tap18.md",
+      "summary": "Allows targets roles to delegate to OIDC identities verified by sigstore's Fulcio CA instead of long-lived private keys, using short-lived certificates and transparency logs.",
+      "dependencies": [],
+      "requiresMajorBump": false,
+      "constraintChanges": [
+        {
+          "type": "added",
+          "constraintId": "C-SIGSTORE-KEY",
+          "description": "New 'sigstore-oidc' keytype allowing delegation to OIDC identities (e.g., email addresses) instead of public keys.",
+          "detail": "Keys have keytype 'sigstore-oidc', scheme 'Fulcio', and keyval containing identity and issuer fields."
+        },
+        {
+          "type": "added",
+          "constraintId": "C-SIGSTORE-SIG",
+          "description": "Signatures using Fulcio keys include a 'bundle' field containing the Fulcio certificate, transparency log reference, and signed timestamp.",
+          "detail": "Verification requires checking certificate chain to Fulcio root, CT inclusion proof, metadata signature, and SET timestamp validity."
+        }
+      ],
+      "securityImpact": {
+        "mitigates": ["Key compromise"],
+        "description": "Eliminates long-term key management burden. Keys are ephemeral and discarded after signing, reducing the window for key compromise."
+      }
+    },
+    {
+      "tap": 19,
+      "title": "Content Addressable Systems and TUF",
+      "status": "Draft",
+      "url": "https://github.com/theupdateframework/taps/blob/master/tap19.md",
+      "summary": "Adapts TUF for content-addressed ecosystems (Git, IPFS, OSTree) where artifacts have built-in integrity checks, allowing TUF to provide key distribution and delegation without redundant hashing.",
+      "dependencies": [11],
+      "requiresMajorBump": false,
+      "constraintChanges": [
+        {
+          "type": "relaxed",
+          "constraintId": "C-META",
+          "before": "Four metadata types: root, targets, snapshot, timestamp",
+          "after": "Targets metadata can reference content-addressed artifacts (Git commits, IPFS CIDs, OSTree refs) instead of file hashes. Metadata types unchanged but targets entries gain flexibility in how artifacts are identified.",
+          "detail": "TUF provides trust delegation and key distribution; content-addressed systems provide integrity verification. Eliminates redundant hashing."
+        }
+      ],
+      "securityImpact": {
+        "mitigates": [],
+        "description": "No new security properties. Leverages existing content-address integrity while adding TUF's trust delegation and key management."
+      }
+    }
+  ],
+  "tapInteractions": [
+    {
+      "taps": [3, 4],
+      "type": "synergy",
+      "severity": "info",
+      "title": "Layered AND: multiplicative signature requirements",
+      "description": "TAP 3 requires N-of-M role agreement within a repository. TAP 4 requires threshold-of-N repository agreement. Combined, a target must satisfy both: multi-role AND-delegation within each repo AND cross-repo consensus. Signature requirements multiply across the two dimensions."
+    },
+    {
+      "taps": [3, 4],
+      "type": "tension",
+      "severity": "warning",
+      "title": "Terminating flag semantics diverge at two granularities",
+      "description": "TAP 3's terminating flag controls delegation traversal within a repository's role graph. TAP 4's terminating flag controls cross-repository fallback in map.json. When both are active, the interaction between intra-repo termination and inter-repo termination is undefined. Custom metadata reconciliation across repos with AND-delegations is also unspecified."
+    },
+    {
+      "taps": [3, 8],
+      "type": "tension",
+      "severity": "warning",
+      "title": "Rotate chains desync AND-verification starting keys",
+      "description": "TAP 3's keys_for_delegations provides the initial key mapping for AND-delegation participants. TAP 8 allows each participant to independently rotate keys via append-only chains. After rotation, the delegator's keys_for_delegations becomes a stale starting point rather than source of truth. Temporal desync between AND-members' rotate chains can cause verification failures if clients process chains in different orders."
+    },
+    {
+      "taps": [3, 12],
+      "type": "tension",
+      "severity": "info",
+      "title": "Flexible keyids create cross-file confusion in AND-delegations",
+      "description": "TAP 12 makes keyids owner-determined and only unique within a single metadata file. TAP 3's AND-delegations span multiple role files that must agree on targets. The same underlying key can have different keyids in different files, making cross-file key correlation ambiguous. Clients must compare key material rather than keyids when verifying AND-agreement."
+    },
+    {
+      "taps": [3, 15],
+      "type": "conflict",
+      "severity": "breaking",
+      "title": "AND-delegations vs succinct bins are structurally incompatible",
+      "description": "TAP 15's succinct_roles defines homogeneous shared-key bins with a single keyid set and threshold. TAP 3's roleinfo arrays require heterogeneous per-role keys for AND-agreement. These formats are mutually exclusive within a single delegation entry.",
+      "constraintEffects": [
+        {
+          "type": "added",
+          "constraintId": "C-INTERACT-3-15",
+          "description": "Cannot apply AND-delegation to succinct bins. Must choose one per delegation subtree: multi-party agreement (TAP 3) OR compact bins (TAP 15)."
+        }
+      ]
+    },
+    {
+      "taps": [3, 20],
+      "type": "tension",
+      "severity": "warning",
+      "title": "Unilateral self-revocation is a DoS vector for AND-delegations",
+      "description": "TAP 20 allows any key holder to self-revoke by rotating to the null key. In a TAP 3 AND-delegation, any single member can unilaterally destroy the entire delegation by self-revoking, since AND requires all members to sign. This creates a denial-of-service vector where one compromised or malicious participant can permanently block target updates."
+    },
+    {
+      "taps": [4, 8],
+      "type": "tension",
+      "severity": "warning",
+      "title": "No atomic cross-repo key rotation; split-brain key state",
+      "description": "TAP 8's rotate mechanism operates within a single repository. TAP 4 requires cross-repository consensus. There is no atomic rotation across repos: a role can rotate keys in repo A but not repo B, creating split-brain key state. This undermines TAP 4's independence assumption — the same logical role has different active keys in different repos."
+    },
+    {
+      "taps": [4, 12],
+      "type": "tension",
+      "severity": "info",
+      "title": "Cross-repo keyid comparison is meaningless",
+      "description": "TAP 12 makes keyids owner-determined with uniqueness only within a file. TAP 4 requires comparing target metadata across repositories. Since different repos can assign different keyids to the same key, clients cannot compare keyids across repos — they must compare raw key material to establish identity."
+    },
+    {
+      "taps": [4, 15],
+      "type": "synergy",
+      "severity": "info",
+      "title": "Complementary: compact bins within each repo + cross-repo consensus",
+      "description": "TAP 15's succinct bins reduce metadata overhead within each repository independently. TAP 4's cross-repo consensus operates at the target level, above the bin delegation layer. These mechanisms are complementary: each repo can use compact bins internally while participating in cross-repo threshold verification."
+    },
+    {
+      "taps": [4, 20],
+      "type": "tension",
+      "severity": "warning",
+      "title": "Self-revocation on one repo can break cross-repo consensus",
+      "description": "TAP 20's self-revocation operates within a single repository. If a role self-revokes in one repo but not others, cross-repo consensus (TAP 4) can permanently fail to reach threshold for affected targets. There is no mechanism to redistribute trust or recover consensus after partial self-revocation."
+    },
+    {
+      "taps": [8, 12],
+      "type": "tension",
+      "severity": "warning",
+      "title": "Keyid scheme transitions within rotate chains",
+      "description": "TAP 8's rotate chain is append-only: each entry references the previous keys by keyid and introduces new keys. TAP 12 allows keyid schemes to change over time. A rotate chain may span a keyid scheme transition — early entries use SHA-256 keyids, later entries use owner-determined keyids. Signature keyids and new-key keyids in the same file may follow different schemes."
+    },
+    {
+      "taps": [8, 15],
+      "type": "tension",
+      "severity": "breaking",
+      "title": "Bin key state diverges from succinct_roles declaration",
+      "description": "TAP 15's succinct_roles declares a single shared keyid set for all 2^bit_length bins. TAP 8 allows individual bin roles to rotate keys independently. After any bin rotates, its actual key state diverges from the succinct_roles declaration. Bulk rotation across all bins is undefined, and the scalability benefit of succinct representation is undermined.",
+      "constraintEffects": [
+        {
+          "type": "added",
+          "constraintId": "C-INTERACT-8-15",
+          "description": "Individual bin key rotation via TAP 8 invalidates the succinct_roles shared-key assumption. No mechanism for bulk rotation or succinct_roles key update."
+        }
+      ]
+    },
+    {
+      "taps": [8, 20],
+      "type": "synergy",
+      "severity": "info",
+      "title": "Self-revocation is built on key rotation",
+      "description": "TAP 20 is explicitly built on TAP 8's rotation mechanism — self-revocation is a special case of rotation where the target key is the null key constant. The rotate chain provides the append-only audit trail. Revocation is irreversible without delegator intervention to re-delegate."
+    },
+    {
+      "taps": [12, 20],
+      "type": "tension",
+      "severity": "warning",
+      "title": "Null key must be recognizable across all keyid schemes",
+      "description": "TAP 20 defines a standardized null key constant for self-revocation. TAP 12 allows arbitrary keyid schemes. The null key must be universally recognizable regardless of the keyid scheme in use, but the spec does not define how the null key's identity is preserved across scheme transitions. This is under-specified."
+    },
+    {
+      "taps": [15, 20],
+      "type": "tension",
+      "severity": "warning",
+      "title": "Self-revocation creates unreachable holes in bin namespace",
+      "description": "TAP 15's succinct bins partition the target namespace into 2^bit_length contiguous bins. If a bin role self-revokes (TAP 20), that portion of the namespace becomes permanently unreachable — no targets can be added or updated in that bin. There is no redistribution mechanism to reassign the hole to another bin."
+    },
+    {
+      "taps": [3, 4, 8],
+      "type": "compound",
+      "severity": "warning",
+      "title": "Rotate cascades through AND-agreement then cross-repo threshold",
+      "description": "A single TAP 8 rotate file can cascade: the rotated key participates in TAP 3 AND-delegation (requiring re-verification of multi-role agreement) which then feeds into TAP 4 cross-repo consensus. The coordination burden multiplies: N roles × M repos must all process the rotation correctly. A single failure in this chain breaks verification."
+    },
+    {
+      "taps": [3, 8, 20],
+      "type": "compound",
+      "severity": "breaking",
+      "title": "AND-delegation ratchet: can only lose members, never gain",
+      "description": "In a TAP 3 AND-delegation, TAP 8 allows members to rotate keys but not add new members. TAP 20 allows members to self-revoke (permanently remove themselves). Combined: the AND-delegation can only shrink, never grow. Two self-revocations in a 3-of-3 AND-delegation cause permanent, irrecoverable failure — no targets can ever be updated through that delegation path.",
+      "constraintEffects": [
+        {
+          "type": "added",
+          "constraintId": "C-INTERACT-3-8-20",
+          "description": "AND-delegation membership is a one-way ratchet: members can self-revoke but cannot be replaced without delegator re-issuing the entire delegation."
+        }
+      ]
+    },
+    {
+      "taps": [8, 12, 20],
+      "type": "compound",
+      "severity": "warning",
+      "title": "Rotate chain spans keyid transitions then terminates with null key",
+      "description": "A rotate chain (TAP 8) may span keyid scheme transitions (TAP 12) and terminate with a null key self-revocation (TAP 20). The null key needs a scheme-independent identity to be recognized at the end of a chain that started under a different keyid scheme. The interaction of all three is not addressed in any individual TAP."
+    },
+    {
+      "taps": [4, 8, 15],
+      "type": "compound",
+      "severity": "warning",
+      "title": "Rotate chain explosion across repos and bins",
+      "description": "TAP 15 creates 2^bit_length bins per repository. TAP 8 allows each bin to have its own rotate chain. TAP 4 replicates this across multiple repos. The total number of potential rotate chains is repos × 2^bit_length — for 2 repos with bit_length=14, that is 32,768 independent chains to track."
+    },
+    {
+      "taps": [3, 4, 8, 12],
+      "type": "compound",
+      "severity": "warning",
+      "title": "Full verification state machine: keyids → rotations → AND-agreement → cross-repo",
+      "description": "Clients must: (1) resolve flexible keyid schemes (TAP 12) to identify actual keys, (2) process append-only rotate chains (TAP 8) to determine current key state, (3) evaluate multi-role AND-agreement (TAP 3) requiring all roles to provide matching target info, (4) compare results across multiple repositories (TAP 4) against cross-repo thresholds. Each layer depends on the previous, creating a complex sequential verification pipeline."
+    },
+    {
+      "taps": [5, 4],
+      "type": "tension",
+      "severity": "warning",
+      "title": "Overlapping URL configuration: root metadata vs map.json",
+      "description": "TAP 5 puts per-role URLs in root metadata (server-side). TAP 4 puts repository URLs in map.json (client-side). When both are active, the client has two potentially conflicting URL sources for the same metadata. Which takes precedence — the repository's own URL hints or the client's cross-repo mapping — is undefined."
+    },
+    {
+      "taps": [5, 13],
+      "type": "tension",
+      "severity": "info",
+      "title": "Per-role URLs vs per-user namespace selection both scope repository trust",
+      "description": "TAP 5 scopes trust by controlling which URLs serve each role's metadata. TAP 13 scopes trust by letting users select which top-level targets metadata to trust. Both achieve trust restriction but at different layers (transport vs metadata). Combining them creates two independent trust-scoping mechanisms that must be reconciled."
+    },
+    {
+      "taps": [13, 4],
+      "type": "synergy",
+      "severity": "info",
+      "title": "User-selected namespaces extend cross-repo mapping granularity",
+      "description": "TAP 13 extends TAP 4's map.json concept by allowing per-user namespace selection within each repository. Combined: map.json selects which repositories to consult, and within each repository, namespace selection chooses which targets metadata tree to trust. This enables fine-grained, user-specific trust policies across multiple repos."
+    },
+    {
+      "taps": [13, 3],
+      "type": "tension",
+      "severity": "warning",
+      "title": "AND-delegations within user-selected namespaces may span trust boundaries",
+      "description": "TAP 13 lets users pin to a specific targets namespace. TAP 3's AND-delegations may reference roles outside the pinned namespace. If an AND-delegation requires agreement from a role the user has excluded via namespace selection, verification fails silently or produces confusing errors."
+    },
+    {
+      "taps": [14, 15],
+      "type": "synergy",
+      "severity": "info",
+      "title": "Version management enables the v2.x bump that succinct bins require",
+      "description": "TAP 15 requires a breaking spec version bump to v2.x. TAP 14 defines the mechanism for managing breaking version transitions. Combined, TAP 14 provides the migration path that makes TAP 15 deployable without breaking existing v1.x clients."
+    },
+    {
+      "taps": [14, 17],
+      "type": "synergy",
+      "severity": "info",
+      "title": "Version management enables signature wrapper migration",
+      "description": "TAP 17 changes the signature wrapper format, which is potentially breaking for existing clients. TAP 14's multi-version metadata mechanism allows repositories to serve both old and new wrapper formats simultaneously during the transition."
+    },
+    {
+      "taps": [16, 15],
+      "type": "synergy",
+      "severity": "info",
+      "title": "Merkle snapshots and succinct bins both target large-repo scalability",
+      "description": "TAP 15 reduces delegating metadata size via succinct bin formulas. TAP 16 reduces snapshot metadata size via Merkle trees. Both address the same scalability problem (large repositories with many delegations) at different layers. Together they dramatically reduce total metadata overhead."
+    },
+    {
+      "taps": [16, 8],
+      "type": "tension",
+      "severity": "warning",
+      "title": "Rotate files must be included in Merkle snapshot tree",
+      "description": "TAP 8 introduces rotate metadata files that must be listed in snapshot metadata. TAP 16 replaces snapshot with a Merkle tree. Each rotate file becomes a leaf in the Merkle tree, and rotate chain growth causes tree rebalancing. The interaction between append-only rotate chains and Merkle tree regeneration is unspecified."
+    },
+    {
+      "taps": [16, 20],
+      "type": "tension",
+      "severity": "info",
+      "title": "Self-revocation rotate files appear as Merkle tree leaves",
+      "description": "TAP 20's self-revocation creates a final rotate file (to null key) that must appear in TAP 16's Merkle snapshot tree. Auditors must verify that null-key rotations are correctly reflected in the tree and that revoked roles' targets metadata versions are handled consistently."
+    },
+    {
+      "taps": [17, 12],
+      "type": "synergy",
+      "severity": "info",
+      "title": "Both relax rigid metadata format requirements",
+      "description": "TAP 12 makes keyids implementation-defined. TAP 17 makes the signature wrapper implementation-defined. Together they move TUF toward a properties-based spec where implementations have flexibility in encoding, with interoperability managed via POUFs (TAP 11)."
+    },
+    {
+      "taps": [17, 18],
+      "type": "synergy",
+      "severity": "info",
+      "title": "Flexible signature wrapper accommodates sigstore bundle format",
+      "description": "TAP 18 adds a 'bundle' field to signatures for Fulcio certificates. TAP 17 replaces the rigid signature wrapper with property-based requirements. Combined, the flexible envelope naturally accommodates TAP 18's extended signature format without requiring spec amendments."
+    },
+    {
+      "taps": [18, 8],
+      "type": "conflict",
+      "severity": "breaking",
+      "title": "Ephemeral keys cannot maintain append-only rotation chains",
+      "description": "TAP 8's rotation requires the current key to sign a rotate file transferring trust to the next key. TAP 18's keys are ephemeral — discarded immediately after signing. An ephemeral key cannot later sign a rotation because it no longer exists. Key rotation for sigstore-oidc delegations is fundamentally incompatible with TAP 8's mechanism.",
+      "constraintEffects": [
+        {
+          "type": "added",
+          "constraintId": "C-INTERACT-18-8",
+          "description": "Roles using sigstore-oidc keys cannot use TAP 8 key rotation. Key changes require delegator to re-delegate to a new OIDC identity."
+        }
+      ]
+    },
+    {
+      "taps": [18, 3],
+      "type": "tension",
+      "severity": "warning",
+      "title": "AND-delegation with ephemeral keys requires simultaneous OIDC authentication",
+      "description": "TAP 3's AND-delegation requires multiple roles to independently sign the same targets. If some roles use TAP 18 sigstore-oidc keys, each must complete an OIDC authentication flow and sign within the short certificate validity window. Coordinating simultaneous ephemeral signing across AND-delegation members adds operational complexity."
+    },
+    {
+      "taps": [18, 20],
+      "type": "tension",
+      "severity": "warning",
+      "title": "Self-revocation is redundant for ephemeral identities",
+      "description": "TAP 20's self-revocation rotates to a null key to permanently disable a role. TAP 18's ephemeral keys are already short-lived and cannot sign future metadata. Self-revocation of a sigstore-oidc role is semantically meaningful (revokes the OIDC identity delegation) but mechanically problematic — it requires TAP 8 rotation which is incompatible with ephemeral keys."
+    },
+    {
+      "taps": [18, 12],
+      "type": "synergy",
+      "severity": "info",
+      "title": "Flexible keyids accommodate sigstore-oidc keytype naturally",
+      "description": "TAP 12 makes keyids owner-determined. TAP 18 introduces a new 'sigstore-oidc' keytype with identity and issuer fields. Flexible keyids mean the sigstore-oidc key can use any identifier scheme (e.g., hash of identity+issuer) without conflicting with the spec's keyid computation rules."
+    },
+    {
+      "taps": [19, 15],
+      "type": "tension",
+      "severity": "warning",
+      "title": "Content-addressed targets may not distribute evenly across hash bins",
+      "description": "TAP 15's succinct bins partition targets by hash of the target filename. TAP 19's content-addressed targets are identified by content hashes (Git SHA, IPFS CID) rather than filenames. The bin assignment depends on what is hashed — if the content address itself is the target name, bin distribution depends on the content-address algorithm's output distribution."
+    },
+    {
+      "taps": [19, 4],
+      "type": "tension",
+      "severity": "info",
+      "title": "Cross-repo consensus for content-addressed artifacts compares content addresses, not file hashes",
+      "description": "TAP 4's cross-repo consensus compares target hashes and lengths across repositories. TAP 19's content-addressed targets are identified by their content address (CID, commit SHA). Consensus comparison must use content addresses rather than file hashes, but the comparison semantics are not specified."
+    },
+    {
+      "taps": [7, 14],
+      "type": "synergy",
+      "severity": "info",
+      "title": "Conformance testing validates version transition behaviour",
+      "description": "TAP 7's conformance tests verify implementation correctness. TAP 14's version management introduces complex multi-version behaviour. Conformance tests would be valuable for verifying that implementations correctly handle version negotiation and multi-version metadata sets."
+    },
+    {
+      "taps": [13, 4, 3],
+      "type": "compound",
+      "severity": "warning",
+      "title": "User namespaces + cross-repo consensus + AND-delegation: three-layer trust policy",
+      "description": "TAP 13 selects the targets namespace per user. TAP 4 requires cross-repo agreement on targets. TAP 3 requires multi-role AND-agreement within each repo. Combined: the client must (1) resolve each repo's namespace-specific targets, (2) verify AND-agreement within each namespace, (3) compare across repos. A role excluded by namespace selection in one repo but required by AND-delegation breaks the chain."
+    },
+    {
+      "taps": [16, 15, 8],
+      "type": "compound",
+      "severity": "warning",
+      "title": "Merkle snapshots + succinct bins + rotate chains: tree maintenance explosion",
+      "description": "TAP 15 creates 2^bit_length bins. TAP 8 allows each bin to independently rotate keys, generating rotate files. TAP 16 puts all metadata versions (including rotate files) into a Merkle tree. Every bin rotation triggers Merkle tree regeneration. For large repositories, the tree churn from independent bin rotations could be significant."
+    },
+    {
+      "taps": [18, 3, 20],
+      "type": "compound",
+      "severity": "breaking",
+      "title": "Ephemeral identity + AND-delegation + self-revocation: irrecoverable by design",
+      "description": "TAP 18's ephemeral keys cannot perform TAP 8 rotation, which TAP 20 requires for self-revocation. In a TAP 3 AND-delegation mixing ephemeral and long-lived keys, the ephemeral members cannot self-revoke. If a long-lived member self-revokes, the AND-delegation fails permanently — and the ephemeral members cannot rotate to compensate because rotation is incompatible with ephemeral keys.",
+      "constraintEffects": [
+        {
+          "type": "added",
+          "constraintId": "C-INTERACT-18-3-20",
+          "description": "AND-delegations mixing sigstore-oidc and traditional keys have asymmetric recovery capabilities: traditional members can self-revoke but ephemeral members cannot rotate or revoke."
+        }
+      ]
+    },
+    {
+      "taps": [14, 15, 17],
+      "type": "compound",
+      "severity": "info",
+      "title": "Version management orchestrates both succinct bins and wrapper migration",
+      "description": "TAP 15 requires a v2.x bump. TAP 17 changes the signature wrapper. TAP 14 provides the mechanism to serve both v1.x (old wrapper, explicit bins) and v2.x (new wrapper, succinct bins) metadata simultaneously. This is the intended migration path for deploying multiple breaking changes together."
+    }
+  ],
+  "processTaps": [
+    {"tap": 1, "title": "TAP Purpose and Guidelines", "notes": "Governs the proposal process itself"},
+    {"tap": 2, "title": "TAP Template", "notes": "Formatting template for TAP submissions"}
+  ]
+}
