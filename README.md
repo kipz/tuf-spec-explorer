@@ -2,7 +2,9 @@
 
 An interactive single-page application for exploring how [TUF Augmentation Proposals (TAPs)](https://github.com/theupdateframework/taps) modify the constraints defined by [The Update Framework (TUF) specification](https://theupdateframework.github.io/specification/latest/).
 
-Toggle any combination of 14 TAPs and see how the spec constraints change, which TAPs interact (synergies, tensions, conflicts), dependency warnings, security impacts, and implementation coverage across 17 TUF client libraries — all computed in real time.
+![TUF TAP Explorer](docs/screenshot.png)
+
+Toggle any combination of 14 TAPs and see how the spec constraints change, which TAPs interact (synergies, tensions, conflicts), dependency warnings, security impacts, and implementation coverage across 17 TUF client libraries — all computed in real time. The sidebar also lists 4 TAPs already incorporated into the spec (TAPs 6, 9, 10, 11).
 
 ## Building and Running Locally
 
@@ -44,8 +46,8 @@ SpecData
 │   ├── roles         # root, targets, snapshot, timestamp
 │   ├── attacks[]     # Attacks TUF mitigates
 │   └── constraints{} # 12 base spec constraints (C-KEYID, C-DELEG, etc.)
-├── incorporatedTaps  # TAPs already merged into the spec (6, 9, 10, 11)
-├── taps[]            # 14 TAPs with constraint changes and security impacts
+├── incorporatedTaps  # 4 TAPs already merged into the spec (6, 9, 10, 11)
+├── taps[]            # 14 toggleable TAPs with constraint changes and security impacts
 ├── tapInteractions[] # 42 cross-TAP interactions (synergies, tensions, conflicts, compounds)
 ├── implementations[] # TUF client libraries with TAP support tracking
 └── processTaps[]     # Process-oriented TAPs (1, 2) not modeled as constraint changes
