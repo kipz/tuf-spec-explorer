@@ -26,7 +26,7 @@
         "constraints": [
           "Can delegate full or partial trust to other roles",
           "Delegations are transitive and revocable",
-          "Only OR-based delegations supported (any single delegated role can sign)"
+          "Delegations searched via pre-order depth-first search; terminating flag blocks subsequent delegations"
         ]
       },
       "snapshot": {
@@ -61,13 +61,13 @@
     "constraints": {
       "keyid_computation": {
         "id": "C-KEYID",
-        "description": "Key IDs MUST be computed as the SHA-256 hash of the canonical JSON form of the key",
+        "description": "Key IDs MUST be computed as the SHA-256 hash of the canonical form of the key",
         "specSection": "file-formats-keys",
         "status": "active"
       },
       "delegation_model": {
         "id": "C-DELEG",
-        "description": "Delegations use OR-based trust: any single delegated role meeting the threshold can sign for targets",
+        "description": "Delegations use pre-order depth-first search with a terminating flag: a terminating delegation blocks subsequent delegations even for non-matching targets",
         "specSection": "file-formats-targets",
         "status": "active"
       },
@@ -464,7 +464,7 @@
       "status": "Draft",
       "url": "https://github.com/theupdateframework/taps/blob/master/tap17.md",
       "summary": "Removes the specific signature wrapper definition from the spec, replacing it with required properties. Implementations choose their own envelope format via POUFs.",
-      "dependencies": [14],
+      "dependencies": [11, 14],
       "requiresMajorBump": false,
       "constraintChanges": [
         {
@@ -513,7 +513,7 @@
       "status": "Draft",
       "url": "https://github.com/theupdateframework/taps/blob/master/tap19.md",
       "summary": "Adapts TUF for content-addressed ecosystems (Git, IPFS, OSTree) where artifacts have built-in integrity checks, allowing TUF to provide key distribution and delegation without redundant hashing.",
-      "dependencies": [],
+      "dependencies": [11],
       "requiresMajorBump": false,
       "constraintChanges": [
         {
@@ -1025,7 +1025,7 @@
       "tier": "system",
       "specVersion": "1.0",
       "tapSupport": [
-        {"tap": 18, "level": "partial", "notes": "Fulcio via GitHub Actions OIDC"}
+        {"tap": 18, "level": "partial", "notes": "Sigstore Fulcio signing (experimental)"}
       ],
       "notes": "Built on python-tuf. HW key + Fulcio signing"
     },
