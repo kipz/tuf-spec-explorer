@@ -165,7 +165,17 @@ function InteractionCard({ interaction }: { interaction: TapInteraction }) {
       <div className="interaction-header">
         <span className={`badge badge-interaction-type`}>{interaction.type}</span>
         <span className={`badge badge-interaction-severity badge-${severityClass}`}>{interaction.severity}</span>
-        <span className="interaction-taps">TAPs {interaction.taps.join(' + ')}</span>
+        <span className="interaction-taps">
+          {interaction.taps.map((t, i) => {
+            const tapData = data.taps.find(tp => tp.tap === t)
+            return (
+              <span key={t}>
+                {i > 0 && ' + '}
+                {tapData ? <a href={tapData.url} target="_blank" rel="noopener noreferrer">TAP {t}</a> : `TAP ${t}`}
+              </span>
+            )
+          })}
+        </span>
       </div>
       <div className="interaction-title">{interaction.title}</div>
       <div className="interaction-desc">{interaction.description}</div>
@@ -222,7 +232,7 @@ function TapCard({ tap, active, onToggle }: { tap: Tap; active: boolean; onToggl
   return (
     <div className={`tap-card ${active ? 'active' : ''}`} onClick={onToggle}>
       <div className="tap-card-header">
-        <span className="tap-number">TAP {tap.tap}</span>
+        <a href={tap.url} target="_blank" rel="noopener noreferrer" className="tap-number" onClick={e => e.stopPropagation()}>TAP {tap.tap}</a>
         <span className="tap-title">{tap.title}</span>
         <div className={`toggle ${active ? 'on' : ''}`} />
       </div>
@@ -276,14 +286,71 @@ export function App() {
   return (
     <div className="app">
       <header>
-        <h1>TUF TAP Explorer</h1>
-        <div className="subtitle">
-          Visualise how accepted TAPs change the TUF specification constraints
+        <div className="header-top">
+          <div className="header-branding">
+            <div className="tuf-logo">
+              <svg viewBox="0 0 40 40" width="40" height="40" fill="none">
+                <rect x="2" y="2" width="36" height="36" rx="8" stroke="var(--accent)" strokeWidth="2.5" />
+                <path d="M12 14h16M20 14v14" stroke="var(--accent)" strokeWidth="2.5" strokeLinecap="round" />
+                <path d="M10 28h20" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" opacity="0.5" />
+                <circle cx="20" cy="11" r="2" fill="var(--accent)" opacity="0.6" />
+              </svg>
+            </div>
+            <div>
+              <h1>TUF TAP Explorer</h1>
+              <div className="subtitle">
+                Interactive constraint analysis for The Update Framework augmentation proposals
+              </div>
+            </div>
+          </div>
+          <div className="header-badges">
+            <span className="header-badge">{data.taps.length} TAPs</span>
+            <span className="header-badge">{data.tapInteractions.length} interactions</span>
+            <span className="header-badge">{Object.keys(data.spec.constraints).length} constraints</span>
+          </div>
         </div>
-        <div className="spec-info">
-          <span>spec v{data.spec.version}</span>
-          <span>modified {data.spec.lastModified}</span>
+
+        <div className="header-description">
+          <p>
+            <a href="https://theupdateframework.io" target="_blank" rel="noopener noreferrer">The Update Framework (TUF)</a> is
+            a <a href="https://www.linuxfoundation.org/projects" target="_blank" rel="noopener noreferrer">Linux Foundation</a> /
+            {' '}<a href="https://www.cncf.io/projects/the-update-framework-tuf/" target="_blank" rel="noopener noreferrer">CNCF</a> graduated
+            project that provides a framework for securing software update systems. TAPs (TUF Augmentation Proposals) are
+            the mechanism for proposing changes to the specification.
+          </p>
+        </div>
+
+        <nav className="header-links">
+          <a href={data.spec.url} target="_blank" rel="noopener noreferrer">Specification v{data.spec.version}</a>
+          <a href="https://theupdateframework.io" target="_blank" rel="noopener noreferrer">theupdateframework.io</a>
+          <a href="https://github.com/theupdateframework/taps" target="_blank" rel="noopener noreferrer">TAP Repository</a>
+          <a href="https://github.com/theupdateframework/specification" target="_blank" rel="noopener noreferrer">Spec Source</a>
+          <a href="https://github.com/theupdateframework/python-tuf" target="_blank" rel="noopener noreferrer">Reference Impl</a>
+          <a href="https://ssl.engineering.nyu.edu/papers/samuel_tuf_ccs2010.pdf" target="_blank" rel="noopener noreferrer">Original Paper</a>
+        </nav>
+
+        <div className="header-tags">
+          <span className="tag">software supply chain</span>
+          <span className="tag">secure updates</span>
+          <span className="tag">key management</span>
+          <span className="tag">delegated trust</span>
+          <span className="tag">metadata signing</span>
+          <span className="tag">rollback protection</span>
+          <span className="tag">CNCF graduated</span>
+          <span className="tag">Sigstore</span>
+          <span className="tag">in-toto</span>
+        </div>
+
+        <div className="header-meta">
+          <span>spec modified {data.spec.lastModified}</span>
+          <span>editors: {data.spec.editors.join(', ')}</span>
+        </div>
+
+        <div className="header-active-bar">
           <span>{activeTaps.size} TAP{activeTaps.size !== 1 ? 's' : ''} active</span>
+          {activeTaps.size > 0 && (
+            <button className="clear-btn" onClick={() => setActiveTaps(new Set())}>clear all</button>
+          )}
         </div>
       </header>
 
@@ -360,7 +427,7 @@ export function App() {
                   <h2>Security Impact</h2>
                   {securityImpacts.map(tap => (
                     <div key={tap.tap} className="security-section">
-                      <h3><ShieldIcon /> TAP {tap.tap}: {tap.title}</h3>
+                      <h3><ShieldIcon /> <a href={tap.url} target="_blank" rel="noopener noreferrer">TAP {tap.tap}</a>: {tap.title}</h3>
                       <p>{tap.securityImpact.description}</p>
                       <div className="mitigates-list">
                         {tap.securityImpact.mitigates.map(a => (

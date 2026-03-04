@@ -39,13 +39,33 @@ body {
 
 header {
   margin-bottom: 2.5rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 1.5rem;
+}
+
+.header-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.header-branding {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.tuf-logo {
+  flex-shrink: 0;
 }
 
 header h1 {
   font-size: 1.75rem;
   font-weight: 700;
   letter-spacing: -0.02em;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.1rem;
 }
 
 header .subtitle {
@@ -53,16 +73,120 @@ header .subtitle {
   font-size: 0.875rem;
 }
 
-header .spec-info {
+.header-badges {
   display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.header-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-dim);
+  border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.header-description {
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  line-height: 1.6;
+  max-width: 72ch;
+}
+
+.header-description a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.header-description a:hover {
+  text-decoration: underline;
+}
+
+nav.header-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-top: 1rem;
+}
+
+nav.header-links a {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  text-decoration: none;
+  padding: 0.3rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+
+nav.header-links a:hover {
+  color: var(--accent);
+  border-color: var(--accent-dim);
+  background: var(--surface);
+}
+
+.header-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+}
+
+.tag {
+  font-size: 0.65rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  background: var(--surface);
+  padding: 0.2rem 0.55rem;
+  border-radius: 4px;
+}
+
+.header-meta {
+  display: flex;
+  flex-wrap: wrap;
   gap: 1.5rem;
   margin-top: 0.75rem;
-  font-size: 0.8rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
   color: var(--text-muted);
 }
 
-header .spec-info span {
+.header-active-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
   font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.clear-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.15rem 0.5rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.clear-btn:hover {
+  color: var(--red);
+  border-color: var(--red);
 }
 
 .layout {
@@ -113,12 +237,18 @@ header .spec-info span {
   gap: 0.75rem;
 }
 
-.tap-number {
+.tap-number,
+a.tap-number {
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.8rem;
   font-weight: 600;
   color: var(--accent);
   white-space: nowrap;
+  text-decoration: none;
+}
+
+a.tap-number:hover {
+  text-decoration: underline;
 }
 
 .tap-title {
@@ -497,6 +627,24 @@ header .spec-info span {
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.75rem;
   color: var(--text-muted);
+}
+
+.interaction-taps a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.interaction-taps a:hover {
+  text-decoration: underline;
+}
+
+.security-section a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.security-section a:hover {
+  text-decoration: underline;
 }
 
 .interaction-title {
