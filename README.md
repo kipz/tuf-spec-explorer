@@ -45,7 +45,7 @@ SpecData
 ├── spec              # Base TUF spec metadata (v1.0.34)
 │   ├── roles         # root, targets, snapshot, timestamp
 │   ├── attacks[]     # Attacks TUF mitigates
-│   └── constraints{} # 12 base spec constraints (C-KEYID, C-DELEG, etc.)
+│   └── constraints{} # 13 base spec constraints (C-KEYID, C-DELEG, C-POUF, etc.)
 ├── incorporatedTaps  # 4 TAPs already merged into the spec (6, 9, 10, 11)
 ├── taps[]            # 14 toggleable TAPs with constraint changes and security impacts
 ├── tapInteractions[] # 42 cross-TAP interactions (synergies, tensions, conflicts, compounds)
@@ -114,7 +114,7 @@ Implementations are grouped by tier in the UI. When TAPs are toggled, each imple
 
 When TAPs are toggled in the UI, constraints are resolved as follows:
 
-1. Start with the 12 base spec constraints (all `unchanged`).
+1. Start with the 13 base spec constraints (all `unchanged`).
 2. Apply each active TAP's `constraintChanges` — status becomes `modified`, `removed`, or `new`.
 3. Apply any `constraintEffects` from active interactions.
 4. Flag dependency violations and incompatibilities.
@@ -126,6 +126,10 @@ The data model was constructed by analyzing the following primary sources:
 
 - [TUF Specification v1.0.34](https://theupdateframework.github.io/specification/latest/) — the base constraints and role definitions
 - [TAP repository](https://github.com/theupdateframework/taps) — individual TAP documents:
+  - [TAP 6](https://github.com/theupdateframework/taps/blob/master/tap6.md) — Include Specification Version in Metadata (incorporated)
+  - [TAP 9](https://github.com/theupdateframework/taps/blob/master/tap9.md) — Mandatory Metadata Signing Schemes (incorporated)
+  - [TAP 10](https://github.com/theupdateframework/taps/blob/master/tap10.md) — Remove Native Compressed Metadata (incorporated)
+  - [TAP 11](https://github.com/theupdateframework/taps/blob/master/tap11.md) — Using POUFs for Interoperability (incorporated)
   - [TAP 3](https://github.com/theupdateframework/taps/blob/master/tap3.md) — Multi-role Delegations
   - [TAP 4](https://github.com/theupdateframework/taps/blob/master/tap4.md) — Multiple Repository Consensus
   - [TAP 5](https://github.com/theupdateframework/taps/blob/master/tap5.md) — Setting URLs for Roles on Repositories

@@ -130,6 +130,12 @@
         "description": "No native support for compressed metadata (TAP 10 — already incorporated)",
         "specSection": "document-formats",
         "status": "active"
+      },
+      "pouf_documents": {
+        "id": "C-POUF",
+        "description": "Implementations MUST define a POUF document specifying their choices for signature envelope, hash algorithms, key types, and other implementation-specific parameters (TAP 11 — already incorporated)",
+        "specSection": "protocol-operations-usage-and-format-pouf-documents",
+        "status": "active"
       }
     }
   },
@@ -151,6 +157,12 @@
       "title": "Remove native support for compressed metadata",
       "status": "Final",
       "summary": "Removes compression support to reduce complexity and attack surface."
+    },
+    {
+      "tap": 11,
+      "title": "Using POUFs for Interoperability",
+      "status": "Final",
+      "summary": "Defines Protocol and Operations for Update Framework (POUFs) to standardize implementation-specific choices like envelope format, hash algorithms, and key types."
     }
   ],
   "taps": [
@@ -431,7 +443,7 @@
       "url": "https://github.com/theupdateframework/taps/blob/master/tap16.md",
       "summary": "Replaces the monolithic snapshot metadata file with a Merkle tree structure, reducing per-client download from O(N) to O(log N) for repositories with many delegations.",
       "dependencies": [],
-      "requiresMajorBump": true,
+      "requiresMajorBump": false,
       "constraintChanges": [
         {
           "type": "relaxed",
@@ -452,7 +464,7 @@
       "status": "Draft",
       "url": "https://github.com/theupdateframework/taps/blob/master/tap17.md",
       "summary": "Removes the specific signature wrapper definition from the spec, replacing it with required properties. Implementations choose their own envelope format via POUFs.",
-      "dependencies": [11, 14],
+      "dependencies": [14],
       "requiresMajorBump": false,
       "constraintChanges": [
         {
@@ -501,7 +513,7 @@
       "status": "Draft",
       "url": "https://github.com/theupdateframework/taps/blob/master/tap19.md",
       "summary": "Adapts TUF for content-addressed ecosystems (Git, IPFS, OSTree) where artifacts have built-in integrity checks, allowing TUF to provide key distribution and delegation without redundant hashing.",
-      "dependencies": [11],
+      "dependencies": [],
       "requiresMajorBump": false,
       "constraintChanges": [
         {
@@ -515,27 +527,6 @@
       "securityImpact": {
         "mitigates": [],
         "description": "No new security properties. Leverages existing content-address integrity while adding TUF's trust delegation and key management."
-      }
-    },
-    {
-      "tap": 11,
-      "title": "Using POUFs for Interoperability",
-      "status": "Accepted",
-      "url": "https://github.com/theupdateframework/taps/blob/master/tap11.md",
-      "summary": "Defines Protocol and Operations for Update Framework (POUFs) to standardize implementation-specific choices like envelope format, hash algorithms, and key types.",
-      "dependencies": [],
-      "requiresMajorBump": false,
-      "constraintChanges": [
-        {
-          "type": "added",
-          "constraintId": "C-POUF",
-          "description": "Implementations MUST define a POUF document specifying their choices for signature envelope, hash algorithms, key types, and other implementation-specific parameters.",
-          "detail": "POUFs enable interoperability testing and clarify which implementation choices are spec-compliant."
-        }
-      ],
-      "securityImpact": {
-        "mitigates": [],
-        "description": "No direct security impact. Standardizes documentation of implementation choices to improve interoperability and reduce misconfiguration."
       }
     }
   ],
@@ -901,7 +892,6 @@
       "specVersion": "1.0",
       "tapSupport": [
         {"tap": 4, "level": "full"},
-        {"tap": 12, "level": "full"},
         {"tap": 15, "level": "full"}
       ]
     },
@@ -936,7 +926,7 @@
       "tier": "third-party",
       "specVersion": "1.0",
       "tapSupport": [],
-      "notes": "AWS KMS/SSM integration. Explicitly no TAP 3/4"
+      "notes": "AWS KMS/SSM integration. Basic delegations supported since v0.20.0. No TAP 3 multi-role or TAP 4"
     },
     {
       "id": "php-tuf",
