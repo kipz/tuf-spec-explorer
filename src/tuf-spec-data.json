@@ -138,7 +138,7 @@
   "incorporatedTaps": [
     {
       "tap": 6,
-      "title": "Include spec_version in metadata",
+      "title": "Include specification version in metadata",
       "status": "Final",
       "summary": "Adds a spec_version field to all metadata types for forward compatibility."
     },
@@ -156,8 +156,8 @@
     },
     {
       "tap": 11,
-      "title": "Using POUFs for interoperability",
-      "status": "Accepted",
+      "title": "Using POUFs for Interoperability",
+      "status": "Final",
       "summary": "Defines Protocol and Operations for Update Framework (POUFs) to standardize implementation-specific choices."
     }
   ],
@@ -220,7 +220,7 @@
     },
     {
       "tap": 8,
-      "title": "Key Rotation and Explicit Self-Revocation",
+      "title": "Key rotation and explicit self-revocation",
       "status": "Accepted",
       "url": "https://github.com/theupdateframework/taps/blob/master/tap8.md",
       "summary": "Delegated roles can independently rotate their own keys without delegator intervention via an append-only rotation chain.",
@@ -254,7 +254,7 @@
     },
     {
       "tap": 12,
-      "title": "Improving Keyid Flexibility",
+      "title": "Improving keyid flexibility",
       "status": "Accepted",
       "url": "https://github.com/theupdateframework/taps/blob/master/tap12.md",
       "summary": "Removes the requirement that keyids must be SHA2-256 hashes of canonical JSON key form. Keyids become owner-determined identifiers.",
@@ -338,7 +338,7 @@
     },
     {
       "tap": 5,
-      "title": "Setting URLs for Roles in Root Metadata",
+      "title": "Setting URLs for roles in the root metadata file",
       "status": "Rejected",
       "url": "https://github.com/theupdateframework/taps/blob/master/tap5.md",
       "summary": "Allows each top-level role in root metadata to be associated with a list of URLs, enabling per-role mirror control and restricted trust in community repositories.",
@@ -359,7 +359,7 @@
     },
     {
       "tap": 7,
-      "title": "Conformance Testing",
+      "title": "Conformance testing",
       "status": "Rejected",
       "url": "https://github.com/theupdateframework/taps/blob/master/tap7.md",
       "summary": "Defines a conformance testing framework to verify TUF implementations behave according to the specification, including attack resilience tests.",
@@ -380,7 +380,7 @@
     },
     {
       "tap": 13,
-      "title": "User Selection of Top-Level Targets Through Mapping Metadata",
+      "title": "User Selection of the Top-Level Targets Files Through Mapping Metadata",
       "status": "Draft",
       "url": "https://github.com/theupdateframework/taps/blob/master/tap13.md",
       "summary": "Allows different users of the same repository to select different top-level targets metadata, enabling per-client namespaces and reduced trust in repository root keys.",
@@ -450,7 +450,7 @@
     },
     {
       "tap": 17,
-      "title": "Remove Signature Wrapper from Specification",
+      "title": "Remove Signature Wrapper from the TUF Specification",
       "status": "Draft",
       "url": "https://github.com/theupdateframework/taps/blob/master/tap17.md",
       "summary": "Removes the specific signature wrapper definition from the spec, replacing it with required properties. Implementations choose their own envelope format via POUFs.",
@@ -472,7 +472,7 @@
     },
     {
       "tap": 18,
-      "title": "Ephemeral Identity Verification via Sigstore Fulcio",
+      "title": "Ephemeral identity verification using sigstore's Fulcio for TUF developer key management",
       "status": "Draft",
       "url": "https://github.com/theupdateframework/taps/blob/master/tap18.md",
       "summary": "Allows targets roles to delegate to OIDC identities verified by sigstore's Fulcio CA instead of long-lived private keys, using short-lived certificates and transparency logs.",
@@ -946,7 +946,7 @@
       "id": "tuf-browser",
       "name": "tuf-browser",
       "language": "TypeScript",
-      "githubUrl": "https://github.com/nicktrave/tuf-browser",
+      "githubUrl": "https://github.com/freedomofpress/tuf-browser",
       "status": "active",
       "tier": "third-party",
       "specVersion": "1.0",
@@ -964,6 +964,17 @@
       "specVersion": "1.0",
       "tapSupport": [],
       "notes": "Fork of legacy go-tuf v0.7.0"
+    },
+    {
+      "id": "sigstore-go",
+      "name": "sigstore-go",
+      "language": "Go",
+      "githubUrl": "https://github.com/sigstore/sigstore-go",
+      "status": "active",
+      "tier": "sigstore",
+      "specVersion": "1.0",
+      "tapSupport": [],
+      "notes": "Current recommended Sigstore TUF client; includes pkg/tuf for trust root distribution"
     },
     {
       "id": "sigstore-java",
@@ -1029,7 +1040,7 @@
     {
       "id": "uptane",
       "name": "Uptane",
-      "language": "C++/Scala",
+      "language": "C++",
       "githubUrl": "https://github.com/uptane/aktualizr",
       "status": "active",
       "tier": "system",

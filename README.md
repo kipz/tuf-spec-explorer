@@ -58,7 +58,7 @@ SpecData
 | Field | Description |
 |---|---|
 | `tap` | TAP number |
-| `status` | `Accepted`, `Draft`, `Rejected`, `Deferred`, or `Final` |
+| `status` | `Accepted`, `Draft`, `Rejected`, or `Deferred` |
 | `dependencies` | TAP numbers this TAP depends on |
 | `requiresMajorBump` | Whether adoption requires a spec v2.x |
 | `constraintChanges[]` | How this TAP adds, removes, or relaxes constraints |
@@ -89,7 +89,7 @@ SpecData
 | `severity` | `info`, `warning`, or `breaking` |
 | `constraintEffects[]` | Additional constraint changes caused by the interaction |
 
-There are 43 interactions total: 12 synergies, 23 tensions, 5 conflicts, and 3 compound effects. Compound effects involve 3+ TAPs and capture emergent behaviour (e.g. the "AND-delegation ratchet" from TAPs 3+8+20).
+There are 42 interactions total: 11 synergies, 20 tensions, 2 conflicts, and 9 compound effects. Compound effects involve 3+ TAPs and capture emergent behaviour (e.g. the "AND-delegation ratchet" from TAPs 3+8+20).
 
 **Implementation** — A TUF client library with its TAP support matrix.
 

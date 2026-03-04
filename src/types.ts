@@ -20,7 +20,7 @@ export interface SecurityImpact {
 export interface Tap {
   tap: number;
   title: string;
-  status: string;
+  status: 'Accepted' | 'Draft' | 'Rejected' | 'Deferred';
   url: string;
   summary: string;
   dependencies: number[];
@@ -34,7 +34,7 @@ export interface Constraint {
   id: string;
   description: string;
   specSection: string;
-  status: string;
+  status: 'active';
 }
 
 export interface Role {
