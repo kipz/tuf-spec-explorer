@@ -2,7 +2,7 @@
 
 An interactive single-page application for exploring how [TUF Augmentation Proposals (TAPs)](https://github.com/theupdateframework/taps) modify the constraints defined by [The Update Framework (TUF) specification](https://theupdateframework.github.io/specification/latest/).
 
-Toggle any combination of 20 TAPs and see how the spec constraints change, which TAPs interact (synergies, tensions, conflicts), dependency warnings, security impacts, and implementation coverage — all computed in real time.
+Toggle any combination of 14 TAPs and see how the spec constraints change, which TAPs interact (synergies, tensions, conflicts), dependency warnings, security impacts, and implementation coverage across 17 TUF client libraries — all computed in real time.
 
 ## Building and Running Locally
 
@@ -45,8 +45,8 @@ SpecData
 │   ├── attacks[]     # Attacks TUF mitigates
 │   └── constraints{} # 12 base spec constraints (C-KEYID, C-DELEG, etc.)
 ├── incorporatedTaps  # TAPs already merged into the spec (6, 9, 10, 11)
-├── taps[]            # 20 TAPs with constraint changes and security impacts
-├── tapInteractions[] # 43 cross-TAP interactions (synergies, tensions, conflicts, compounds)
+├── taps[]            # 14 TAPs with constraint changes and security impacts
+├── tapInteractions[] # 42 cross-TAP interactions (synergies, tensions, conflicts, compounds)
 ├── implementations[] # TUF client libraries with TAP support tracking
 └── processTaps[]     # Process-oriented TAPs (1, 2) not modeled as constraint changes
 ```
@@ -139,4 +139,23 @@ The data model was constructed by analyzing the following primary sources:
   - [TAP 19](https://github.com/theupdateframework/taps/blob/master/tap19.md) — Content Addressable Targets
   - [TAP 20](https://github.com/theupdateframework/taps/blob/master/tap20.md) — Self-Revocation
 
-The constraint extraction, TAP interaction analysis, and security impact summaries were generated with the assistance of Claude (Anthropic), using the above TAP documents and specification as input context. The interactions were then reviewed for correctness against the source material.
+- TUF implementation repositories — TAP support and conformance data was gathered from:
+  - [python-tuf](https://github.com/theupdateframework/python-tuf) — Python (core)
+  - [go-tuf v2](https://github.com/theupdateframework/go-tuf) — Go (core)
+  - [tuf-js](https://github.com/theupdateframework/tuf-js) — TypeScript (core)
+  - [rust-tuf](https://github.com/theupdateframework/rust-tuf) — Rust (core)
+  - [tough (AWS)](https://github.com/awslabs/tough) — Rust (third-party)
+  - [php-tuf](https://github.com/php-tuf/php-tuf) — PHP (third-party)
+  - [hackage-security](https://github.com/haskell/hackage-security) — Haskell (third-party)
+  - [tuf-browser](https://github.com/freedomofpress/tuf-browser) — TypeScript (third-party)
+  - [DataDog/go-tuf](https://github.com/DataDog/go-tuf) — Go (third-party)
+  - [sigstore-go](https://github.com/sigstore/sigstore-go) — Go (sigstore)
+  - [sigstore-java](https://github.com/sigstore/sigstore-java) — Java (sigstore)
+  - [sigstore-ruby](https://github.com/sigstore/sigstore-ruby) — Ruby (sigstore)
+  - [Notary](https://github.com/notaryproject/notary) — Go (system, archived)
+  - [TUF-on-CI](https://github.com/theupdateframework/tuf-on-ci) — Python (system)
+  - [RSTUF](https://github.com/repository-service-tuf/repository-service-tuf) — Python (system)
+  - [Uptane](https://github.com/uptane/aktualizr) — C++ (system)
+  - [TAF](https://github.com/openlawlibrary/taf) — Python (system)
+
+The constraint extraction, TAP interaction analysis, security impact summaries, and implementation TAP support data were generated with the assistance of Claude (Anthropic), using the above sources as input context. The data was then reviewed for correctness against the source material.
