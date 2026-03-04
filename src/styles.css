@@ -1,4 +1,27 @@
 :root {
+  --bg: #f8f9fc;
+  --surface: #ffffff;
+  --surface-hover: #f0f1f5;
+  --border: #d8dbe5;
+  --border-active: #9098b8;
+  --text: #1a1d27;
+  --text-dim: #5a5f75;
+  --text-muted: #8b90a5;
+  --accent: #4a5adf;
+  --accent-dim: #c5caef;
+  --green: #16a34a;
+  --green-dim: rgba(22, 163, 74, 0.1);
+  --red: #dc2626;
+  --red-dim: rgba(220, 38, 38, 0.1);
+  --amber: #ca8a04;
+  --amber-dim: rgba(202, 138, 4, 0.1);
+  --blue: #2563eb;
+  --blue-dim: rgba(37, 99, 235, 0.1);
+  --purple: #7c3aed;
+  --purple-dim: rgba(124, 58, 237, 0.1);
+}
+
+[data-theme="dark"] {
   --bg: #0f1117;
   --surface: #1a1d27;
   --surface-hover: #22263a;
@@ -75,8 +98,29 @@ header .subtitle {
 
 .header-badges {
   display: flex;
+  align-items: center;
   gap: 0.5rem;
   flex-shrink: 0;
+}
+
+.theme-toggle {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-dim);
+  transition: color 0.2s, border-color 0.2s;
+  margin-left: 0.25rem;
+}
+
+.theme-toggle:hover {
+  color: var(--accent);
+  border-color: var(--border-active);
 }
 
 .header-badge {

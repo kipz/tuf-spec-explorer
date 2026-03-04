@@ -38,7 +38,7 @@
         ]
       },
       "timestamp": {
-        "description": "Periodically signs automated timestamped statements.",
+        "description": "Prevents replay of out-of-date metadata by periodically signing timestamped statements containing the hash of the snapshot file.",
         "keyPolicy": "Online key required",
         "constraints": [
           "Short-lived metadata to prevent freeze attacks",
@@ -223,7 +223,7 @@
       "url": "https://github.com/theupdateframework/taps/blob/master/tap8.md",
       "summary": "Delegated roles can independently rotate their own keys without delegator intervention via an append-only rotation chain.",
       "dependencies": [],
-      "requiresMajorBump": false,
+      "requiresMajorBump": true,
       "constraintChanges": [
         {
           "type": "relaxed",
@@ -268,13 +268,13 @@
         }
       ],
       "securityImpact": {
-        "mitigates": ["Vulnerability to key compromises"],
-        "description": "Algorithm agility, quantum resilience, easier key migration workflows. Removes dependency on SHA-256 for key identification."
+        "mitigates": [],
+        "description": "Keyid flexibility enables collision prevention, owner-determined identifiers, and easier key migration workflows. Removes dependency on SHA-256 for key identification."
       }
     },
     {
       "tap": 15,
-      "title": "Succinct Hashed Bin Delegations",
+      "title": "Succinct hashed bin delegations",
       "status": "Accepted",
       "url": "https://github.com/theupdateframework/taps/blob/master/tap15.md",
       "summary": "Compact representation for hashed bin delegations using a formula instead of explicit enumeration.",
@@ -308,12 +308,12 @@
     },
     {
       "tap": 20,
-      "title": "Self-Revocation",
+      "title": "Self-revocation",
       "status": "Accepted",
       "url": "https://github.com/theupdateframework/taps/blob/master/tap20.md",
       "summary": "A compromised role can revoke itself by rotating to a reserved 'null key', building on TAP 8's rotation mechanism.",
       "dependencies": [8],
-      "requiresMajorBump": false,
+      "requiresMajorBump": true,
       "constraintChanges": [
         {
           "type": "removed",
@@ -431,7 +431,7 @@
       "url": "https://github.com/theupdateframework/taps/blob/master/tap16.md",
       "summary": "Replaces the monolithic snapshot metadata file with a Merkle tree structure, reducing per-client download from O(N) to O(log N) for repositories with many delegations.",
       "dependencies": [],
-      "requiresMajorBump": false,
+      "requiresMajorBump": true,
       "constraintChanges": [
         {
           "type": "relaxed",
