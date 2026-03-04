@@ -2,7 +2,7 @@
 
 An interactive single-page application for exploring how [TUF Augmentation Proposals (TAPs)](https://github.com/theupdateframework/taps) modify the constraints defined by [The Update Framework (TUF) specification](https://theupdateframework.github.io/specification/latest/).
 
-Toggle any combination of 20 TAPs and see how the spec constraints change, which TAPs interact (synergies, tensions, conflicts), dependency warnings, and security impacts — all computed in real time.
+Toggle any combination of 20 TAPs and see how the spec constraints change, which TAPs interact (synergies, tensions, conflicts), dependency warnings, security impacts, and implementation coverage — all computed in real time.
 
 ## Building and Running Locally
 
@@ -47,6 +47,7 @@ SpecData
 ├── incorporatedTaps  # TAPs already merged into the spec (6, 9, 10, 11)
 ├── taps[]            # 20 TAPs with constraint changes and security impacts
 ├── tapInteractions[] # 43 cross-TAP interactions (synergies, tensions, conflicts, compounds)
+├── implementations[] # TUF client libraries with TAP support tracking
 └── processTaps[]     # Process-oriented TAPs (1, 2) not modeled as constraint changes
 ```
 
@@ -90,6 +91,23 @@ SpecData
 
 There are 43 interactions total: 12 synergies, 23 tensions, 5 conflicts, and 3 compound effects. Compound effects involve 3+ TAPs and capture emergent behaviour (e.g. the "AND-delegation ratchet" from TAPs 3+8+20).
 
+**Implementation** — A TUF client library with its TAP support matrix.
+
+| Field | Description |
+|---|---|
+| `id` | Unique identifier (e.g. `python-tuf`) |
+| `name` | Display name |
+| `language` | Implementation language |
+| `githubUrl` | Link to the GitHub repository |
+| `status` | `active`, `pre-production`, `alpha`, or `archived` |
+| `tier` | `core` (theupdateframework org), `third-party`, `sigstore`, or `system` |
+| `specVersion` | TUF spec version targeted |
+| `conformancePercent` | Optional conformance test pass rate |
+| `tapSupport[]` | Array of `{ tap, level, notes? }` — which TAPs are supported and at what level (`full` or `partial`) |
+| `notes` | Optional description |
+
+Implementations are grouped by tier in the UI. When TAPs are toggled, each implementation card shows which active TAPs it supports (green) or doesn't (red), and the summary bar reports how many implementations fully cover the selected TAP combination.
+
 ### Constraint Resolution
 
 When TAPs are toggled in the UI, constraints are resolved as follows:
@@ -98,6 +116,7 @@ When TAPs are toggled in the UI, constraints are resolved as follows:
 2. Apply each active TAP's `constraintChanges` — status becomes `modified`, `removed`, or `new`.
 3. Apply any `constraintEffects` from active interactions.
 4. Flag dependency violations and incompatibilities.
+5. Compute implementation coverage — for each implementation, check its `tapSupport` against the active TAPs.
 
 ### Resources Used to Generate the Data Model
 
