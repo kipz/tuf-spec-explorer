@@ -56,6 +56,28 @@ export interface TapInteraction {
   }>;
 }
 
+export interface TapSupport {
+  tap: number;
+  level: 'full' | 'partial';
+  notes?: string;
+}
+
+export type ImplementationTier = 'core' | 'third-party' | 'sigstore' | 'system';
+export type ImplementationStatus = 'active' | 'pre-production' | 'alpha' | 'archived';
+
+export interface Implementation {
+  id: string;
+  name: string;
+  language: string;
+  githubUrl: string;
+  status: ImplementationStatus;
+  tier: ImplementationTier;
+  specVersion: string;
+  conformancePercent?: number;
+  tapSupport: TapSupport[];
+  notes?: string;
+}
+
 export interface SpecData {
   spec: {
     version: string;
@@ -79,4 +101,5 @@ export interface SpecData {
     title: string;
     notes: string;
   }>;
+  implementations: Implementation[];
 }

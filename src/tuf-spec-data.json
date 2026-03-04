@@ -854,5 +854,199 @@
   "processTaps": [
     {"tap": 1, "title": "TAP Purpose and Guidelines", "notes": "Governs the proposal process itself"},
     {"tap": 2, "title": "TAP Template", "notes": "Formatting template for TAP submissions"}
+  ],
+  "implementations": [
+    {
+      "id": "python-tuf",
+      "name": "python-tuf",
+      "language": "Python",
+      "githubUrl": "https://github.com/theupdateframework/python-tuf",
+      "status": "active",
+      "tier": "core",
+      "specVersion": "1.0",
+      "conformancePercent": 100,
+      "tapSupport": [
+        {"tap": 12, "level": "full"},
+        {"tap": 15, "level": "full"},
+        {"tap": 17, "level": "partial", "notes": "DSSE experimental"}
+      ],
+      "notes": "Reference implementation"
+    },
+    {
+      "id": "go-tuf-v2",
+      "name": "go-tuf v2",
+      "language": "Go",
+      "githubUrl": "https://github.com/theupdateframework/go-tuf",
+      "status": "active",
+      "tier": "core",
+      "specVersion": "1.0",
+      "tapSupport": [
+        {"tap": 4, "level": "full"},
+        {"tap": 12, "level": "full"},
+        {"tap": 15, "level": "full"}
+      ]
+    },
+    {
+      "id": "tuf-js",
+      "name": "tuf-js",
+      "language": "TypeScript",
+      "githubUrl": "https://github.com/theupdateframework/tuf-js",
+      "status": "active",
+      "tier": "core",
+      "specVersion": "1.0",
+      "conformancePercent": 99,
+      "tapSupport": [],
+      "notes": "1.2M npm dependents"
+    },
+    {
+      "id": "rust-tuf",
+      "name": "rust-tuf",
+      "language": "Rust",
+      "githubUrl": "https://github.com/theupdateframework/rust-tuf",
+      "status": "pre-production",
+      "tier": "core",
+      "specVersion": "1.0",
+      "tapSupport": [],
+      "notes": "Not suitable for production use"
+    },
+    {
+      "id": "tough",
+      "name": "tough (AWS)",
+      "language": "Rust",
+      "githubUrl": "https://github.com/awslabs/tough",
+      "status": "active",
+      "tier": "third-party",
+      "specVersion": "1.0",
+      "tapSupport": [],
+      "notes": "AWS KMS/SSM integration. Explicitly no TAP 3/4"
+    },
+    {
+      "id": "php-tuf",
+      "name": "php-tuf",
+      "language": "PHP",
+      "githubUrl": "https://github.com/php-tuf/php-tuf",
+      "status": "alpha",
+      "tier": "third-party",
+      "specVersion": "1.0",
+      "tapSupport": [],
+      "notes": "Not for production. Drupal/TYPO3/Joomla"
+    },
+    {
+      "id": "hackage-security",
+      "name": "hackage-security",
+      "language": "Haskell",
+      "githubUrl": "https://github.com/haskell/hackage-security",
+      "status": "active",
+      "tier": "third-party",
+      "specVersion": "custom",
+      "tapSupport": [],
+      "notes": "Custom TUF variant for Hackage"
+    },
+    {
+      "id": "tuf-browser",
+      "name": "tuf-browser",
+      "language": "TypeScript",
+      "githubUrl": "https://github.com/nicktrave/tuf-browser",
+      "status": "active",
+      "tier": "third-party",
+      "specVersion": "1.0",
+      "conformancePercent": 75,
+      "tapSupport": [],
+      "notes": "Browser-only. No delegations. Volunteer-maintained"
+    },
+    {
+      "id": "datadog-go-tuf",
+      "name": "DataDog/go-tuf",
+      "language": "Go",
+      "githubUrl": "https://github.com/DataDog/go-tuf",
+      "status": "active",
+      "tier": "third-party",
+      "specVersion": "1.0",
+      "tapSupport": [],
+      "notes": "Fork of legacy go-tuf v0.7.0"
+    },
+    {
+      "id": "sigstore-java",
+      "name": "sigstore-java",
+      "language": "Java",
+      "githubUrl": "https://github.com/sigstore/sigstore-java",
+      "status": "active",
+      "tier": "sigstore",
+      "specVersion": "1.0",
+      "conformancePercent": 80,
+      "tapSupport": [],
+      "notes": "TUF for trust root distribution only"
+    },
+    {
+      "id": "sigstore-ruby",
+      "name": "sigstore-ruby",
+      "language": "Ruby",
+      "githubUrl": "https://github.com/sigstore/sigstore-ruby",
+      "status": "active",
+      "tier": "sigstore",
+      "specVersion": "1.0",
+      "tapSupport": [],
+      "notes": "TUF client in sigstore"
+    },
+    {
+      "id": "notary",
+      "name": "Notary",
+      "language": "Go",
+      "githubUrl": "https://github.com/notaryproject/notary",
+      "status": "archived",
+      "tier": "system",
+      "specVersion": "1.0",
+      "tapSupport": [],
+      "notes": "Archived July 2025. Docker Content Trust"
+    },
+    {
+      "id": "tuf-on-ci",
+      "name": "TUF-on-CI",
+      "language": "Python",
+      "githubUrl": "https://github.com/theupdateframework/tuf-on-ci",
+      "status": "active",
+      "tier": "system",
+      "specVersion": "1.0",
+      "tapSupport": [
+        {"tap": 18, "level": "partial", "notes": "Fulcio via GitHub Actions OIDC"}
+      ],
+      "notes": "Built on python-tuf. HW key + Fulcio signing"
+    },
+    {
+      "id": "rstuf",
+      "name": "RSTUF",
+      "language": "Python",
+      "githubUrl": "https://github.com/repository-service-tuf/repository-service-tuf",
+      "status": "active",
+      "tier": "system",
+      "specVersion": "1.0",
+      "tapSupport": [
+        {"tap": 12, "level": "full"},
+        {"tap": 15, "level": "full"}
+      ],
+      "notes": "Repository service for large-scale registries"
+    },
+    {
+      "id": "uptane",
+      "name": "Uptane",
+      "language": "C++/Scala",
+      "githubUrl": "https://github.com/uptane/aktualizr",
+      "status": "active",
+      "tier": "system",
+      "specVersion": "custom",
+      "tapSupport": [],
+      "notes": "Automotive TUF superset. Two-repo arch, ECU roles"
+    },
+    {
+      "id": "taf",
+      "name": "TAF",
+      "language": "Python",
+      "githubUrl": "https://github.com/openlawlibrary/taf",
+      "status": "active",
+      "tier": "system",
+      "specVersion": "1.0",
+      "tapSupport": [],
+      "notes": "TUF for Git repo authentication. Government use"
+    }
   ]
 }

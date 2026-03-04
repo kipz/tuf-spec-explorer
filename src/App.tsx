@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import specData from './tuf-spec-data.json'
-import type { SpecData, Tap, ConstraintChange, TapInteraction } from './types'
+import type { SpecData, Tap, ConstraintChange, TapInteraction, Implementation, ImplementationTier } from './types'
 
 const data = specData as SpecData
 
@@ -132,6 +132,81 @@ function checkDependencyWarnings(activeTaps: Set<number>): Array<{ tap: number; 
   return warnings
 }
 
+interface ImplCoverage {
+  impl: Implementation;
+  supportedTaps: number[];
+  unsupportedTaps: number[];
+}
+
+function computeImplementationCoverage(activeTaps: Set<number>): ImplCoverage[] {
+  return (data.implementations ?? []).map(impl => {
+    const supportedTaps: number[] = []
+    const unsupportedTaps: number[] = []
+    for (const tapNum of activeTaps) {
+      if (impl.tapSupport.some(ts => ts.tap === tapNum)) {
+        supportedTaps.push(tapNum)
+      } else {
+        unsupportedTaps.push(tapNum)
+      }
+    }
+    return { impl, supportedTaps, unsupportedTaps }
+  })
+}
+
+function computeTapImplCounts(): Map<number, number> {
+  const counts = new Map<number, number>()
+  for (const impl of data.implementations ?? []) {
+    for (const ts of impl.tapSupport) {
+      counts.set(ts.tap, (counts.get(ts.tap) ?? 0) + 1)
+    }
+  }
+  return counts
+}
+
+const tierOrder: ImplementationTier[] = ['core', 'third-party', 'sigstore', 'system']
+const tierLabels: Record<ImplementationTier, string> = {
+  core: 'Core (theupdateframework)',
+  'third-party': 'Third-party',
+  sigstore: 'Sigstore',
+  system: 'System',
+}
+
+function ImplementationCard({ coverage, hasActiveTaps }: { coverage: ImplCoverage; hasActiveTaps: boolean }) {
+  const { impl, supportedTaps, unsupportedTaps } = coverage
+  const borderClass = !hasActiveTaps
+    ? ''
+    : unsupportedTaps.length === 0
+    ? 'impl-full'
+    : supportedTaps.length > 0
+    ? 'impl-partial'
+    : 'impl-none'
+
+  return (
+    <div className={`impl-card ${borderClass}`}>
+      <div className="impl-header">
+        <a href={impl.githubUrl} target="_blank" rel="noopener noreferrer" className="impl-name">{impl.name}</a>
+        <span className="badge badge-lang">{impl.language}</span>
+        <span className={`badge badge-tier-${impl.tier}`}>{impl.tier}</span>
+        <span className={`badge badge-impl-status-${impl.status}`}>{impl.status}</span>
+      </div>
+      {impl.conformancePercent !== undefined && (
+        <div className="impl-conformance">Conformance: {impl.conformancePercent}%</div>
+      )}
+      {impl.notes && <div className="impl-notes">{impl.notes}</div>}
+      {hasActiveTaps && (supportedTaps.length > 0 || unsupportedTaps.length > 0) && (
+        <div className="impl-tap-badges">
+          {supportedTaps.map(t => (
+            <span key={t} className="impl-tap-badge impl-tap-yes">TAP {t}</span>
+          ))}
+          {unsupportedTaps.map(t => (
+            <span key={t} className="impl-tap-badge impl-tap-no">TAP {t}</span>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 function PlusIcon() {
   return <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 2a.75.75 0 01.75.75v4.5h4.5a.75.75 0 010 1.5h-4.5v4.5a.75.75 0 01-1.5 0v-4.5h-4.5a.75.75 0 010-1.5h4.5v-4.5A.75.75 0 018 2z"/></svg>
 }
@@ -228,7 +303,7 @@ function ConstraintCard({ constraint }: { constraint: ResolvedConstraint }) {
   )
 }
 
-function TapCard({ tap, active, onToggle }: { tap: Tap; active: boolean; onToggle: () => void }) {
+function TapCard({ tap, active, onToggle, implementationCount }: { tap: Tap; active: boolean; onToggle: () => void; implementationCount: number }) {
   return (
     <div className={`tap-card ${active ? 'active' : ''}`} onClick={onToggle}>
       <div className="tap-card-header">
@@ -244,6 +319,9 @@ function TapCard({ tap, active, onToggle }: { tap: Tap; active: boolean; onToggl
         {tap.requiresMajorBump && (
           <span className="badge badge-breaking">v2.x required</span>
         )}
+        <span className={`badge ${implementationCount > 0 ? 'badge-impl-some' : 'badge-impl-none'}`}>
+          {implementationCount} impl{implementationCount !== 1 ? 's' : ''}
+        </span>
       </div>
       <div className="tap-summary">{tap.summary}</div>
     </div>
@@ -272,6 +350,12 @@ export function App() {
     data.taps.filter(t => activeTaps.has(t.tap) && t.securityImpact.mitigates.length > 0),
     [activeTaps]
   )
+  const implCoverage = useMemo(() => computeImplementationCoverage(activeTaps), [activeTaps])
+  const tapImplCounts = useMemo(() => computeTapImplCounts(), [])
+  const supportingImplCount = useMemo(() => {
+    if (activeTaps.size === 0) return 0
+    return implCoverage.filter(c => c.unsupportedTaps.length === 0 && c.supportedTaps.length > 0).length
+  }, [implCoverage, activeTaps.size])
 
   const changedConstraints = constraints.filter(c => c.status !== 'unchanged')
   const unchangedConstraints = constraints.filter(c => c.status === 'unchanged')
@@ -363,6 +447,7 @@ export function App() {
               tap={tap}
               active={activeTaps.has(tap.tap)}
               onToggle={() => toggleTap(tap.tap)}
+              implementationCount={tapImplCounts.get(tap.tap) ?? 0}
             />
           ))}
         </aside>
@@ -407,8 +492,37 @@ export function App() {
                     <span className="stat-count">{stats.incompatible}</span> incompatible
                   </div>
                 )}
+                <div className="summary-stat">
+                  <div className={`stat-dot ${supportingImplCount > 0 ? 'green' : 'red'}`} />
+                  <span className="stat-count">{supportingImplCount}</span> impl{supportingImplCount !== 1 ? 's' : ''} support{supportingImplCount === 1 ? 's' : ''} this
+                </div>
               </div>
+            </>
+          )}
 
+          <div className="section">
+            <h2>Implementations ({data.implementations?.length ?? 0})</h2>
+            {tierOrder.map(tier => {
+              const tierImpls = implCoverage.filter(c => c.impl.tier === tier)
+              if (tierImpls.length === 0) return null
+              const sorted = activeTaps.size > 0
+                ? [...tierImpls].sort((a, b) => b.supportedTaps.length - a.supportedTaps.length)
+                : tierImpls
+              return (
+                <div key={tier} className="impl-tier-group">
+                  <div className="impl-tier-label">{tierLabels[tier]}</div>
+                  <div className="impl-grid">
+                    {sorted.map(c => (
+                      <ImplementationCard key={c.impl.id} coverage={c} hasActiveTaps={activeTaps.size > 0} />
+                    ))}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+
+          {activeTaps.size > 0 && (
+            <>
               {activeInteractions.length > 0 && (
                 <div className="section">
                   <h2><LinkIcon /> TAP Interactions ({activeInteractions.length})</h2>

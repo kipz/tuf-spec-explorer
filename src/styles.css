@@ -678,6 +678,159 @@ a.tap-number:hover {
   flex-shrink: 0;
 }
 
+/* Implementation cards */
+.impl-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 0.75rem;
+}
+
+.impl-tier-group {
+  margin-bottom: 1.25rem;
+}
+
+.impl-tier-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.impl-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.875rem 1rem;
+  transition: border-color 0.3s;
+}
+
+.impl-card.impl-full {
+  border-color: var(--green);
+  border-left: 3px solid var(--green);
+}
+
+.impl-card.impl-partial {
+  border-color: var(--amber);
+  border-left: 3px solid var(--amber);
+}
+
+.impl-card.impl-none {
+  border-color: var(--red);
+  border-left: 3px solid var(--red);
+}
+
+.impl-header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.35rem;
+}
+
+.impl-name {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--accent);
+  text-decoration: none;
+  margin-right: 0.25rem;
+}
+
+.impl-name:hover {
+  text-decoration: underline;
+}
+
+.impl-notes {
+  font-size: 0.775rem;
+  color: var(--text-dim);
+  line-height: 1.4;
+}
+
+.impl-conformance {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-bottom: 0.25rem;
+}
+
+.impl-tap-badges {
+  display: flex;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.impl-tap-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 500;
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px;
+}
+
+.impl-tap-yes {
+  background: var(--green-dim);
+  color: var(--green);
+}
+
+.impl-tap-no {
+  background: var(--red-dim);
+  color: var(--red);
+}
+
+/* Badge variants for implementations */
+.badge-lang {
+  background: var(--surface-hover);
+  color: var(--text-dim);
+}
+
+.badge-tier-core {
+  background: var(--blue-dim);
+  color: var(--blue);
+}
+
+.badge-tier-third-party {
+  background: var(--purple-dim);
+  color: var(--purple);
+}
+
+.badge-tier-sigstore {
+  background: var(--green-dim);
+  color: var(--green);
+}
+
+.badge-tier-system {
+  background: var(--amber-dim);
+  color: var(--amber);
+}
+
+.badge-impl-status-active {
+  background: var(--green-dim);
+  color: var(--green);
+}
+
+.badge-impl-status-pre-production,
+.badge-impl-status-alpha {
+  background: var(--amber-dim);
+  color: var(--amber);
+}
+
+.badge-impl-status-archived {
+  background: var(--red-dim);
+  color: var(--red);
+}
+
+.badge-impl-some {
+  background: var(--green-dim);
+  color: var(--green);
+}
+
+.badge-impl-none {
+  background: var(--red-dim);
+  color: var(--red);
+}
+
 @media (max-width: 900px) {
   .layout {
     grid-template-columns: 1fr;
