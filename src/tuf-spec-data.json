@@ -161,14 +161,14 @@
     {
       "tap": 11,
       "title": "Using POUFs for Interoperability",
-      "status": "Final",
+      "status": "Accepted",
       "summary": "Defines Protocol and Operations for Update Framework (POUFs) to standardize implementation-specific choices like envelope format, hash algorithms, and key types."
     }
   ],
   "taps": [
     {
       "tap": 3,
-      "title": "Multi-role Delegations",
+      "title": "Multi-role delegations",
       "status": "Accepted",
       "url": "https://github.com/theupdateframework/taps/blob/master/tap3.md",
       "summary": "Adds AND-relations in delegations, requiring N-of-M roles to agree on the same target with identical hashes/length.",
@@ -202,7 +202,7 @@
     },
     {
       "tap": 4,
-      "title": "Multiple Repository Consensus on Entrusted Targets",
+      "title": "Multiple repository consensus on entrusted targets",
       "status": "Accepted",
       "url": "https://github.com/theupdateframework/taps/blob/master/tap4.md",
       "summary": "Enables cross-repository trust where clients require multiple independent repositories to sign off on the same targets.",
@@ -233,7 +233,7 @@
       "title": "Key rotation and explicit self-revocation",
       "status": "Accepted",
       "url": "https://github.com/theupdateframework/taps/blob/master/tap8.md",
-      "summary": "Delegated roles can independently rotate their own keys without delegator intervention via an append-only rotation chain.",
+      "summary": "Delegated roles can independently rotate their own keys and explicitly self-revoke without delegator intervention via an append-only rotation chain.",
       "dependencies": [],
       "requiresMajorBump": true,
       "constraintChanges": [
@@ -863,7 +863,7 @@
   ],
   "processTaps": [
     {"tap": 1, "title": "TAP Purpose and Guidelines", "notes": "Governs the proposal process itself"},
-    {"tap": 2, "title": "TAP Template", "notes": "Formatting template for TAP submissions"}
+    {"tap": 2, "title": "TAP template", "notes": "Formatting template for TAP submissions"}
   ],
   "implementations": [
     {
@@ -959,7 +959,7 @@
       "tier": "third-party",
       "specVersion": "1.0",
       "tapSupport": [],
-      "notes": "Browser-only. No delegations. Volunteer-maintained"
+      "notes": "Browser and Node.js compatible. No delegations. Volunteer-maintained"
     },
     {
       "id": "datadog-go-tuf",
