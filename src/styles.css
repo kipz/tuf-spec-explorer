@@ -325,6 +325,29 @@ a.tap-number:hover {
   line-height: 1.45;
 }
 
+/* Incorporated TAP cards */
+.incorporated-tap-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.85rem 1.15rem;
+  margin-bottom: 0.625rem;
+  opacity: 0.7;
+}
+
+.incorporated-tap-card .tap-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.badge-final {
+  background: var(--green-dim);
+  color: var(--green);
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
 /* Main content */
 .main {
   min-width: 0;

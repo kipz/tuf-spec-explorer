@@ -303,6 +303,19 @@ function ConstraintCard({ constraint }: { constraint: ResolvedConstraint }) {
   )
 }
 
+function IncorporatedTapCard({ tap }: { tap: { tap: number; title: string; status: string; summary: string } }) {
+  return (
+    <div className="incorporated-tap-card">
+      <div className="tap-card-header">
+        <span className="tap-number">TAP {tap.tap}</span>
+        <span className="tap-title">{tap.title}</span>
+        <span className="badge badge-final">Final</span>
+      </div>
+      <div className="tap-summary">{tap.summary}</div>
+    </div>
+  )
+}
+
 function TapCard({ tap, active, onToggle, implementationCount }: { tap: Tap; active: boolean; onToggle: () => void; implementationCount: number }) {
   return (
     <div className={`tap-card ${active ? 'active' : ''}`} onClick={onToggle}>
@@ -388,7 +401,7 @@ export function App() {
             </div>
           </div>
           <div className="header-badges">
-            <span className="header-badge">{data.taps.length} TAPs</span>
+            <span className="header-badge">{data.taps.length + data.incorporatedTaps.length} TAPs</span>
             <span className="header-badge">{data.tapInteractions.length} interactions</span>
             <span className="header-badge">{Object.keys(data.spec.constraints).length} constraints</span>
           </div>
@@ -440,6 +453,10 @@ export function App() {
 
       <div className="layout">
         <aside className="sidebar">
+          <h2>Incorporated into Spec</h2>
+          {data.incorporatedTaps.map(tap => (
+            <IncorporatedTapCard key={tap.tap} tap={tap} />
+          ))}
           <h2>Toggle TAPs</h2>
           {data.taps.map(tap => (
             <TapCard
