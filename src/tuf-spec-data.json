@@ -13,7 +13,7 @@
     "roles": {
       "root": {
         "description": "Trust anchor. Delegates trust to all other top-level roles via signed metadata.",
-        "keyPolicy": "MUST be kept offline",
+        "keyPolicy": "MUST be kept very secure; SHOULD be kept offline",
         "constraints": [
           "Clients ship with pre-trusted root keys",
           "Key rotation handles compromise of fewer than threshold keys",
@@ -39,7 +39,7 @@
       },
       "timestamp": {
         "description": "Periodically signs automated timestamped statements.",
-        "keyPolicy": "Online key acceptable",
+        "keyPolicy": "Online key required",
         "constraints": [
           "Short-lived metadata to prevent freeze attacks",
           "Signs over snapshot metadata hash"
@@ -52,85 +52,83 @@
       "Extraneous dependencies",
       "Fast-forward",
       "Indefinite freeze",
-      "Malicious mirror interference",
+      "Malicious mirrors preventing updates",
       "Mix-and-match",
       "Rollback",
-      "Key compromise",
-      "Wrong software installation",
-      "Malicious key scenarios",
-      "Repository mirror manipulation"
+      "Vulnerability to key compromises",
+      "Wrong software installation"
     ],
     "constraints": {
       "keyid_computation": {
         "id": "C-KEYID",
         "description": "Key IDs MUST be computed as the SHA-256 hash of the canonical JSON form of the key",
-        "specSection": "4.2",
+        "specSection": "file-formats-keys",
         "status": "active"
       },
       "delegation_model": {
         "id": "C-DELEG",
         "description": "Delegations use OR-based trust: any single delegated role meeting the threshold can sign for targets",
-        "specSection": "4.5",
+        "specSection": "file-formats-targets",
         "status": "active"
       },
       "single_repo_trust": {
         "id": "C-REPO",
         "description": "Client trusts a single repository; no mechanism for cross-repository consensus",
-        "specSection": "1.1",
+        "specSection": "the-repository",
         "status": "active"
       },
       "key_rotation_delegator": {
         "id": "C-KEYROT",
         "description": "Key rotation for delegated roles requires the delegator to issue new delegation metadata",
-        "specSection": "4.5",
+        "specSection": "key-management-and-migration",
         "status": "active"
       },
       "explicit_bin_delegation": {
         "id": "C-BINS",
         "description": "Hashed bin delegations require explicit enumeration of every bin in targets metadata",
-        "specSection": "4.5",
+        "specSection": "file-formats-targets",
         "status": "active"
       },
       "no_self_revocation": {
         "id": "C-SELFREVOKE",
         "description": "No mechanism for a role to revoke its own keys; revocation requires delegator action",
-        "specSection": "4.5",
+        "specSection": "key-management-and-migration",
         "status": "active"
       },
       "metadata_types": {
         "id": "C-META",
         "description": "Four metadata types: root, targets, snapshot, timestamp",
-        "specSection": "4",
+        "specSection": "document-formats",
         "status": "active"
       },
       "threshold_signing": {
         "id": "C-THRESH",
         "description": "Each role has a threshold of signatures required for validity",
-        "specSection": "4.3",
+        "specSection": "file-formats-root",
         "status": "active"
       },
       "consistent_snapshots": {
         "id": "C-SNAP",
         "description": "Snapshot metadata lists version numbers for all targets metadata",
-        "specSection": "4.4",
+        "specSection": "consistent-snapshots",
         "status": "active"
       },
       "spec_version_field": {
         "id": "C-SPECVER",
         "description": "All metadata MUST include spec_version field (TAP 6 — already incorporated)",
-        "specSection": "4.1",
+        "specSection": "document-formats",
         "status": "active"
       },
       "signing_scheme_in_signed": {
         "id": "C-SCHEME",
         "description": "Signing scheme MUST be in the signed portion of metadata (TAP 9 — already incorporated)",
-        "specSection": "4.2",
+        "specSection": "file-formats-keys",
         "status": "active"
       },
       "no_compressed_metadata": {
         "id": "C-NOCOMPRESS",
         "description": "No native support for compressed metadata (TAP 10 — already incorporated)",
-        "specSection": "4.1",
+        "specSection": "document-formats",
         "status": "active"
       }
     }
@@ -153,12 +151,6 @@
       "title": "Remove native support for compressed metadata",
       "status": "Final",
       "summary": "Removes compression support to reduce complexity and attack surface."
-    },
-    {
-      "tap": 11,
-      "title": "Using POUFs for Interoperability",
-      "status": "Final",
-      "summary": "Defines Protocol and Operations for Update Framework (POUFs) to standardize implementation-specific choices."
     }
   ],
   "taps": [
@@ -169,7 +161,7 @@
       "url": "https://github.com/theupdateframework/taps/blob/master/tap3.md",
       "summary": "Adds AND-relations in delegations, requiring N-of-M roles to agree on the same target with identical hashes/length.",
       "dependencies": [],
-      "requiresMajorBump": false,
+      "requiresMajorBump": true,
       "constraintChanges": [
         {
           "type": "relaxed",
@@ -185,8 +177,14 @@
           "detail": "Adds keys_for_delegations mapping, roleinfo arrays, and min_roles_in_agreement parameter to delegation metadata."
         }
       ],
+      "incompatibilities": [
+        {
+          "description": "Backwards-incompatible changes to targets metadata delegation format.",
+          "severity": "breaking"
+        }
+      ],
       "securityImpact": {
-        "mitigates": ["Key compromise"],
+        "mitigates": ["Vulnerability to key compromises"],
         "description": "Significantly increases compromise resilience for high-value targets by requiring multiple independent role agreements."
       }
     },
@@ -214,7 +212,7 @@
         }
       ],
       "securityImpact": {
-        "mitigates": ["Arbitrary installation", "Key compromise", "Malicious mirror interference"],
+        "mitigates": ["Arbitrary installation", "Vulnerability to key compromises", "Malicious mirrors preventing updates"],
         "description": "Supply chain security across organizational boundaries — e.g., 'package X must be confirmed by both the OS vendor AND upstream project.'"
       }
     },
@@ -248,7 +246,7 @@
         }
       ],
       "securityImpact": {
-        "mitigates": ["Key compromise"],
+        "mitigates": ["Vulnerability to key compromises"],
         "description": "Reduces time-to-remediation for key compromise from 'wait for delegator' to 'immediate self-service.'"
       }
     },
@@ -270,7 +268,7 @@
         }
       ],
       "securityImpact": {
-        "mitigates": ["Key compromise"],
+        "mitigates": ["Vulnerability to key compromises"],
         "description": "Algorithm agility, quantum resilience, easier key migration workflows. Removes dependency on SHA-256 for key identification."
       }
     },
@@ -332,7 +330,7 @@
         }
       ],
       "securityImpact": {
-        "mitigates": ["Key compromise"],
+        "mitigates": ["Vulnerability to key compromises"],
         "description": "Minimizes time-to-revocation in incident response — key holders can immediately invalidate their own credentials."
       }
     },
@@ -353,7 +351,7 @@
         }
       ],
       "securityImpact": {
-        "mitigates": ["Key compromise", "Malicious mirror interference"],
+        "mitigates": ["Vulnerability to key compromises", "Malicious mirrors preventing updates"],
         "description": "Allows users to restrict trust in community repos to specific projects by fixing the root of trust for selected roles."
       }
     },
@@ -395,7 +393,7 @@
         }
       ],
       "securityImpact": {
-        "mitigates": ["Key compromise", "Arbitrary installation"],
+        "mitigates": ["Vulnerability to key compromises", "Arbitrary installation"],
         "description": "Reduces blast radius of root key compromise — users who pin to a specific targets namespace are unaffected by root-level target replacement."
       }
     },
@@ -493,7 +491,7 @@
         }
       ],
       "securityImpact": {
-        "mitigates": ["Key compromise"],
+        "mitigates": ["Vulnerability to key compromises"],
         "description": "Eliminates long-term key management burden. Keys are ephemeral and discarded after signing, reducing the window for key compromise."
       }
     },
@@ -517,6 +515,27 @@
       "securityImpact": {
         "mitigates": [],
         "description": "No new security properties. Leverages existing content-address integrity while adding TUF's trust delegation and key management."
+      }
+    },
+    {
+      "tap": 11,
+      "title": "Using POUFs for Interoperability",
+      "status": "Accepted",
+      "url": "https://github.com/theupdateframework/taps/blob/master/tap11.md",
+      "summary": "Defines Protocol and Operations for Update Framework (POUFs) to standardize implementation-specific choices like envelope format, hash algorithms, and key types.",
+      "dependencies": [],
+      "requiresMajorBump": false,
+      "constraintChanges": [
+        {
+          "type": "added",
+          "constraintId": "C-POUF",
+          "description": "Implementations MUST define a POUF document specifying their choices for signature envelope, hash algorithms, key types, and other implementation-specific parameters.",
+          "detail": "POUFs enable interoperability testing and clarify which implementation choices are spec-compliant."
+        }
+      ],
+      "securityImpact": {
+        "mitigates": [],
+        "description": "No direct security impact. Standardizes documentation of implementation choices to improve interoperability and reduce misconfiguration."
       }
     }
   ],
@@ -894,9 +913,8 @@
       "status": "active",
       "tier": "core",
       "specVersion": "1.0",
-      "conformancePercent": 99,
       "tapSupport": [],
-      "notes": "1.2M npm dependents"
+      "notes": "npm package for Node.js ecosystem"
     },
     {
       "id": "rust-tuf",
@@ -950,7 +968,6 @@
       "status": "active",
       "tier": "third-party",
       "specVersion": "1.0",
-      "conformancePercent": 75,
       "tapSupport": [],
       "notes": "Browser-only. No delegations. Volunteer-maintained"
     },
@@ -963,7 +980,7 @@
       "tier": "third-party",
       "specVersion": "1.0",
       "tapSupport": [],
-      "notes": "Fork of legacy go-tuf v0.7.0"
+      "notes": "Actively maintained fork of legacy go-tuf, diverged significantly (up to v1.1.x)"
     },
     {
       "id": "sigstore-go",
@@ -984,7 +1001,6 @@
       "status": "active",
       "tier": "sigstore",
       "specVersion": "1.0",
-      "conformancePercent": 80,
       "tapSupport": [],
       "notes": "TUF for trust root distribution only"
     },
@@ -1006,9 +1022,9 @@
       "githubUrl": "https://github.com/notaryproject/notary",
       "status": "archived",
       "tier": "system",
-      "specVersion": "1.0",
+      "specVersion": "pre-1.0",
       "tapSupport": [],
-      "notes": "Archived July 2025. Docker Content Trust"
+      "notes": "Archived. Docker Content Trust. Last release (v0.6.1) predates TUF 1.0 spec"
     },
     {
       "id": "tuf-on-ci",
