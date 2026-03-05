@@ -415,6 +415,21 @@ export function App() {
             <span className="header-badge">{data.tapInteractions.length} interactions</span>
             <span className="header-badge">{Object.keys(data.spec.constraints).length} constraints</span>
             <a
+              href="https://cloud-native.slack.com/archives/C8NMD3QJ3"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="github-link"
+              aria-label="TUF Slack channel"
+              title="TUF Slack channel"
+            >
+              <svg width="20" height="20" viewBox="0 0 128 128">
+                <path d="M26.8 80.1a13.4 13.4 0 1 1-13.4-13.4h13.4v13.4zm6.7 0a13.4 13.4 0 1 1 26.8 0v33.5a13.4 13.4 0 1 1-26.8 0V80.1z" fill="#E01E5A"/>
+                <path d="M47.9 26.8a13.4 13.4 0 1 1 13.4-13.4v13.4H47.9zm0 6.7a13.4 13.4 0 1 1 0 26.8H14.4a13.4 13.4 0 1 1 0-26.8h33.5z" fill="#36C5F0"/>
+                <path d="M101.2 47.9a13.4 13.4 0 1 1 13.4 13.4h-13.4V47.9zm-6.7 0a13.4 13.4 0 1 1-26.8 0V14.4a13.4 13.4 0 1 1 26.8 0v33.5z" fill="#2EB67D"/>
+                <path d="M80.1 101.2a13.4 13.4 0 1 1-13.4 13.4v-13.4h13.4zm0-6.7a13.4 13.4 0 1 1 0-26.8h33.5a13.4 13.4 0 1 1 0 26.8H80.1z" fill="#ECB22E"/>
+              </svg>
+            </a>
+            <a
               href="https://github.com/kipz/tuf-spec-explorer"
               target="_blank"
               rel="noopener noreferrer"
