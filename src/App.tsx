@@ -120,10 +120,14 @@ function computeActiveInteractions(activeTaps: Set<number>): TapInteraction[] {
 
 function checkDependencyWarnings(activeTaps: Set<number>): Array<{ tap: number; missingDep: number }> {
   const warnings: Array<{ tap: number; missingDep: number }> = []
+  const satisfiedTaps = new Set(activeTaps)
+  for (const t of data.incorporatedTaps) {
+    satisfiedTaps.add(t.tap)
+  }
   for (const tap of data.taps) {
     if (activeTaps.has(tap.tap)) {
       for (const dep of tap.dependencies) {
-        if (!activeTaps.has(dep)) {
+        if (!satisfiedTaps.has(dep)) {
           warnings.push({ tap: tap.tap, missingDep: dep })
         }
       }
