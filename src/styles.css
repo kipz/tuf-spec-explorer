@@ -272,6 +272,31 @@ nav.header-links a:hover {
   margin-bottom: 0.75rem;
 }
 
+.sidebar-collapsible {
+  margin-bottom: 0.75rem;
+}
+
+.sidebar-collapsible summary {
+  cursor: pointer;
+  list-style: none;
+}
+
+.sidebar-collapsible summary::-webkit-details-marker {
+  display: none;
+}
+
+.sidebar-collapsible summary h2 {
+  display: inline;
+}
+
+.sidebar-collapsible summary h2::after {
+  content: ' ▸';
+}
+
+.sidebar-collapsible[open] summary h2::after {
+  content: ' ▾';
+}
+
 .tap-card {
   background: var(--surface);
   border: 1px solid var(--border);

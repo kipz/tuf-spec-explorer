@@ -524,20 +524,35 @@ export function App() {
 
       <div className="layout">
         <aside className="sidebar">
-          <h2>Incorporated into Spec</h2>
-          {data.incorporatedTaps.map(tap => (
-            <IncorporatedTapCard key={tap.tap} tap={tap} />
-          ))}
-          <h2>Toggle TAPs</h2>
-          {data.taps.map(tap => (
-            <TapCard
-              key={tap.tap}
-              tap={tap}
-              active={activeTaps.has(tap.tap)}
-              onToggle={() => toggleTap(tap.tap)}
-              implementationCount={tapImplCounts.get(tap.tap) ?? 0}
-            />
-          ))}
+          <details className="sidebar-collapsible">
+            <summary><h2>Incorporated into Spec</h2></summary>
+            {data.incorporatedTaps.map(tap => (
+              <IncorporatedTapCard key={tap.tap} tap={tap} />
+            ))}
+          </details>
+          {([
+            { label: 'Deferred', status: 'Deferred', defaultOpen: false },
+            { label: 'Rejected', status: 'Rejected', defaultOpen: false },
+            { label: 'Accepted', status: 'Accepted', defaultOpen: true },
+            { label: 'Draft', status: 'Draft', defaultOpen: true },
+          ] as const).map(group => {
+            const taps = data.taps.filter(t => t.status === group.status)
+            if (taps.length === 0) return null
+            return (
+              <details key={group.status} className="sidebar-collapsible" open={group.defaultOpen || undefined}>
+                <summary><h2>{group.label}</h2></summary>
+                {taps.map(tap => (
+                  <TapCard
+                    key={tap.tap}
+                    tap={tap}
+                    active={activeTaps.has(tap.tap)}
+                    onToggle={() => toggleTap(tap.tap)}
+                    implementationCount={tapImplCounts.get(tap.tap) ?? 0}
+                  />
+                ))}
+              </details>
+            )
+          })}
         </aside>
 
         <main className="main">
