@@ -275,19 +275,24 @@ function InteractionCard({ interaction }: { interaction: TapInteraction }) {
 function ConstraintCard({ constraint }: { constraint: ResolvedConstraint }) {
   return (
     <div className={`constraint-row ${constraint.status}`}>
-      {constraint.changes.length > 0 && (
-        <div className={`change-indicator ${constraint.status === 'new' ? 'added' : constraint.status === 'incompatible' ? 'incompatible' : constraint.status}`}>
-          {constraint.status === 'new' && <><PlusIcon /> Added</>}
-          {constraint.status === 'removed' && <><MinusIcon /> Removed</>}
-          {constraint.status === 'modified' && <><ArrowIcon /> Relaxed</>}
-          {constraint.status === 'incompatible' && <><WarnIcon /> Incompatible</>}
-        </div>
-      )}
-      <div className="constraint-id">{constraint.id}</div>
+      <div className="constraint-header">
+        {constraint.changes.length > 0 && (
+          <span className={`change-indicator ${constraint.status === 'new' ? 'added' : constraint.status === 'incompatible' ? 'incompatible' : constraint.status}`}>
+            {constraint.status === 'new' && <><PlusIcon /> Added</>}
+            {constraint.status === 'removed' && <><MinusIcon /> Removed</>}
+            {constraint.status === 'modified' && <><ArrowIcon /> Relaxed</>}
+            {constraint.status === 'incompatible' && <><WarnIcon /> Incompatible</>}
+          </span>
+        )}
+        {constraint.specSection ? (
+          <a className="constraint-id" href={`${data.spec.url}#${constraint.specSection}`} target="_blank" rel="noopener noreferrer">{constraint.id}</a>
+        ) : constraint.changes.length > 0 && data.taps.find(t => t.tap === constraint.changes[0].tapNumber)?.url ? (
+          <a className="constraint-id" href={data.taps.find(t => t.tap === constraint.changes[0].tapNumber)!.url} target="_blank" rel="noopener noreferrer">{constraint.id}</a>
+        ) : (
+          <span className="constraint-id">{constraint.id}</span>
+        )}
+      </div>
       <div className="constraint-desc">{constraint.description}</div>
-      {constraint.specSection && (
-        <div className="constraint-spec-section">spec &sect;{constraint.specSection}</div>
-      )}
       {constraint.changes.map((change, i) => (
         <div key={i}>
           {change.before && change.after && (
@@ -297,7 +302,7 @@ function ConstraintCard({ constraint }: { constraint: ResolvedConstraint }) {
             </div>
           )}
           <div className="detail">{change.detail}</div>
-          <div className="tap-source">via TAP {change.tapNumber}: {change.tapTitle}</div>
+          <div className="tap-source">via <a href={data.taps.find(t => t.tap === change.tapNumber)?.url} target="_blank" rel="noopener noreferrer">TAP {change.tapNumber}: {change.tapTitle}</a></div>
         </div>
       ))}
       {constraint.status === 'incompatible' && constraint.changes[0] && (

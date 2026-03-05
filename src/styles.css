@@ -460,11 +460,17 @@ a.tap-number:hover {
   border-left: 3px solid var(--amber);
 }
 
+.constraint-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
 .constraint-id {
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.8rem;
   color: var(--text-muted);
-  margin-bottom: 0.25rem;
 }
 
 .constraint-desc {
@@ -486,7 +492,6 @@ a.tap-number:hover {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  margin-bottom: 0.5rem;
 }
 
 .change-indicator.added { color: var(--green); }
