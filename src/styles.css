@@ -103,6 +103,24 @@ header .subtitle {
   flex-shrink: 0;
 }
 
+.github-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-dim);
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.github-link:hover {
+  color: var(--accent);
+  border-color: var(--border-active);
+}
+
 .theme-toggle {
   background: var(--surface);
   border: 1px solid var(--border);
