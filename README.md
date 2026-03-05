@@ -1,5 +1,7 @@
 # TUF Spec Explorer
 
+**[Live Demo](https://kipz.github.io/tuf-spec-explorer/)**
+
 An interactive single-page application for exploring how [TUF Augmentation Proposals (TAPs)](https://github.com/theupdateframework/taps) modify the constraints defined by [The Update Framework (TUF) specification](https://theupdateframework.github.io/specification/latest/).
 
 ![TUF Spec Explorer](docs/demo.gif)
