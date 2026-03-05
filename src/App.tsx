@@ -344,6 +344,7 @@ function TapCard({ tap, active, onToggle, implementationCount }: { tap: Tap; act
 export function App() {
   const [theme, setTheme] = useState<'light' | 'dark'>('light')
   const [activeTaps, setActiveTaps] = useState<Set<number>>(new Set())
+  const [visibleTiers, setVisibleTiers] = useState<Set<ImplementationTier>>(new Set(['core']))
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
@@ -505,7 +506,7 @@ export function App() {
         </div>
 
         <div className="header-active-bar">
-          <span>{activeTaps.size} TAP{activeTaps.size !== 1 ? 's' : ''} active</span>
+          <span>{activeTaps.size} TAP{activeTaps.size !== 1 ? 's' : ''} selected</span>
           {activeTaps.size > 0 && (
             <button className="clear-btn" onClick={() => setActiveTaps(new Set())}>clear all</button>
           )}
@@ -531,12 +532,22 @@ export function App() {
         </aside>
 
         <main className="main">
-          {depWarnings.map((w, i) => (
-            <div key={i} className="dep-warning">
-              <WarnIcon />
-              TAP {w.tap} depends on TAP {w.missingDep} which is not enabled. Enable TAP {w.missingDep} for full effect.
-            </div>
-          ))}
+          {depWarnings.map((w, i) => {
+            const isToggleable = data.taps.some(t => t.tap === w.missingDep)
+            return (
+              <div key={i} className="dep-warning">
+                <WarnIcon />
+                TAP {w.tap} depends on TAP {w.missingDep} which is not enabled.
+                {isToggleable ? (
+                  <button className="enable-dep-btn" onClick={() => toggleTap(w.missingDep)}>
+                    Enable TAP {w.missingDep}
+                  </button>
+                ) : (
+                  <> Enable TAP {w.missingDep} for full effect.</>
+                )}
+              </div>
+            )
+          })}
 
           {activeTaps.size === 0 ? (
             <div className="empty-state">
@@ -580,7 +591,27 @@ export function App() {
 
           <div className="section">
             <h2>Implementations ({data.implementations?.length ?? 0})</h2>
+            <div className="impl-tier-filters">
+              {tierOrder.map(tier => (
+                <label key={tier} className={`impl-tier-filter badge-tier-${tier}`}>
+                  <input
+                    type="checkbox"
+                    checked={visibleTiers.has(tier)}
+                    onChange={() => {
+                      setVisibleTiers(prev => {
+                        const next = new Set(prev)
+                        if (next.has(tier)) next.delete(tier)
+                        else next.add(tier)
+                        return next
+                      })
+                    }}
+                  />
+                  {tierLabels[tier]}
+                </label>
+              ))}
+            </div>
             {tierOrder.map(tier => {
+              if (!visibleTiers.has(tier)) return null
               const tierImpls = implCoverage.filter(c => c.impl.tier === tier)
               if (tierImpls.length === 0) return null
               const sorted = activeTaps.size > 0
