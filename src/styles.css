@@ -5,15 +5,15 @@
   --border: #d8dbe5;
   --border-active: #9098b8;
   --text: #1a1d27;
-  --text-dim: #5a5f75;
-  --text-muted: #8b90a5;
+  --text-dim: #4a4f65;
+  --text-muted: #6b7085;
   --accent: #4a5adf;
   --accent-dim: #c5caef;
   --green: #16a34a;
   --green-dim: rgba(22, 163, 74, 0.1);
   --red: #dc2626;
   --red-dim: rgba(220, 38, 38, 0.1);
-  --amber: #ca8a04;
+  --amber: #a16207;
   --amber-dim: rgba(202, 138, 4, 0.1);
   --blue: #2563eb;
   --blue-dim: rgba(37, 99, 235, 0.1);
@@ -28,8 +28,8 @@
   --border: #2a2e3e;
   --border-active: #4a5080;
   --text: #e1e4ed;
-  --text-dim: #8b90a5;
-  --text-muted: #5a5f75;
+  --text-dim: #9a9fb5;
+  --text-muted: #7a7f95;
   --accent: #6c7cff;
   --accent-dim: #4a5090;
   --green: #4ade80;
@@ -50,7 +50,7 @@ body {
   font-family: 'Inter', -apple-system, sans-serif;
   background: var(--bg);
   color: var(--text);
-  line-height: 1.5;
+  line-height: 1.55;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -125,7 +125,7 @@ header .subtitle {
 
 .header-badge {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   font-weight: 600;
   color: var(--accent);
   background: var(--accent-dim);
@@ -185,7 +185,7 @@ nav.header-links a:hover {
 }
 
 .tag {
-  font-size: 0.65rem;
+  font-size: 0.7rem;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -201,7 +201,7 @@ nav.header-links a:hover {
   gap: 1.5rem;
   margin-top: 0.75rem;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   color: var(--text-muted);
 }
 
@@ -218,7 +218,7 @@ nav.header-links a:hover {
 
 .clear-btn {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   color: var(--text-muted);
   background: none;
   border: 1px solid var(--border);
@@ -340,7 +340,7 @@ a.tap-number:hover {
 }
 
 .badge {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   font-weight: 500;
   padding: 0.15rem 0.5rem;
   border-radius: 4px;
@@ -444,7 +444,7 @@ a.tap-number:hover {
 
 .constraint-id {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   color: var(--text-muted);
   margin-bottom: 0.25rem;
 }
@@ -455,7 +455,7 @@ a.tap-number:hover {
 
 .constraint-spec-section {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   color: var(--text-muted);
   margin-top: 0.25rem;
 }
@@ -519,7 +519,7 @@ a.tap-number:hover {
 }
 
 .tap-source {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   color: var(--text-muted);
   margin-top: 0.35rem;
   font-family: 'JetBrains Mono', monospace;
@@ -557,7 +557,7 @@ a.tap-number:hover {
 }
 
 .mitigates-badge {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   padding: 0.15rem 0.5rem;
   border-radius: 4px;
   background: var(--purple-dim);
@@ -692,7 +692,7 @@ a.tap-number:hover {
 
 .interaction-taps {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   color: var(--text-muted);
 }
 
@@ -816,7 +816,7 @@ a.tap-number:hover {
 
 .impl-conformance {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   color: var(--text-muted);
   margin-bottom: 0.25rem;
 }
@@ -830,7 +830,7 @@ a.tap-number:hover {
 
 .impl-tap-badge {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.65rem;
+  font-size: 0.7rem;
   font-weight: 500;
   padding: 0.1rem 0.4rem;
   border-radius: 3px;
