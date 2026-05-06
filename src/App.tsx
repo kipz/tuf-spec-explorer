@@ -1,8 +1,7 @@
 import { useState, useMemo, useEffect } from 'react'
-import specData from './tuf-spec-data.json'
-import type { SpecData, Tap, ConstraintChange, TapInteraction, Implementation, ImplementationTier } from './types'
-
-const data = specData as SpecData
+import { specData as data } from './data'
+import { safeHref } from './lib/safe-href'
+import type { Tap, ConstraintChange, TapInteraction, Implementation, ImplementationTier } from './types'
 
 interface ResolvedConstraint {
   id: string;
@@ -188,7 +187,7 @@ function ImplementationCard({ coverage, hasActiveTaps }: { coverage: ImplCoverag
   return (
     <div className={`impl-card ${borderClass}`}>
       <div className="impl-header">
-        <a href={impl.githubUrl} target="_blank" rel="noopener noreferrer" className="impl-name">{impl.name}</a>
+        <a href={safeHref(impl.githubUrl)} target="_blank" rel="noopener noreferrer" className="impl-name">{impl.name}</a>
         <span className="badge badge-lang">{impl.language}</span>
         <span className={`badge badge-tier-${impl.tier}`}>{impl.tier}</span>
         <span className={`badge badge-impl-status-${impl.status}`}>{impl.status}</span>
@@ -250,7 +249,7 @@ function InteractionCard({ interaction }: { interaction: TapInteraction }) {
             return (
               <span key={t}>
                 {i > 0 && ' + '}
-                {tapData ? <a href={tapData.url} target="_blank" rel="noopener noreferrer">TAP {t}</a> : `TAP ${t}`}
+                {tapData ? <a href={safeHref(tapData.url)} target="_blank" rel="noopener noreferrer">TAP {t}</a> : `TAP ${t}`}
               </span>
             )
           })}
@@ -285,9 +284,9 @@ function ConstraintCard({ constraint }: { constraint: ResolvedConstraint }) {
           </span>
         )}
         {constraint.specSection ? (
-          <a className="constraint-id" href={`${data.spec.url}#${constraint.specSection}`} target="_blank" rel="noopener noreferrer">{constraint.id}</a>
+          <a className="constraint-id" href={safeHref(`${data.spec.url}#${constraint.specSection}`)} target="_blank" rel="noopener noreferrer">{constraint.id}</a>
         ) : constraint.changes.length > 0 && data.taps.find(t => t.tap === constraint.changes[0].tapNumber)?.url ? (
-          <a className="constraint-id" href={data.taps.find(t => t.tap === constraint.changes[0].tapNumber)!.url} target="_blank" rel="noopener noreferrer">{constraint.id}</a>
+          <a className="constraint-id" href={safeHref(data.taps.find(t => t.tap === constraint.changes[0].tapNumber)!.url)} target="_blank" rel="noopener noreferrer">{constraint.id}</a>
         ) : (
           <span className="constraint-id">{constraint.id}</span>
         )}
@@ -302,7 +301,7 @@ function ConstraintCard({ constraint }: { constraint: ResolvedConstraint }) {
             </div>
           )}
           <div className="detail">{change.detail}</div>
-          <div className="tap-source">via <a href={data.taps.find(t => t.tap === change.tapNumber)?.url} target="_blank" rel="noopener noreferrer">TAP {change.tapNumber}: {change.tapTitle}</a></div>
+          <div className="tap-source">via <a href={safeHref(data.taps.find(t => t.tap === change.tapNumber)?.url)} target="_blank" rel="noopener noreferrer">TAP {change.tapNumber}: {change.tapTitle}</a></div>
         </div>
       ))}
       {constraint.status === 'incompatible' && constraint.changes[0] && (
@@ -329,7 +328,7 @@ function TapCard({ tap, active, onToggle, implementationCount }: { tap: Tap; act
   return (
     <div className={`tap-card ${active ? 'active' : ''}`} onClick={onToggle}>
       <div className="tap-card-header">
-        <a href={tap.url} target="_blank" rel="noopener noreferrer" className="tap-number" onClick={e => e.stopPropagation()}>TAP {tap.tap}</a>
+        <a href={safeHref(tap.url)} target="_blank" rel="noopener noreferrer" className="tap-number" onClick={e => e.stopPropagation()}>TAP {tap.tap}</a>
         <span className="tap-title">{tap.title}</span>
         <div className={`toggle ${active ? 'on' : ''}`} />
       </div>
@@ -404,7 +403,7 @@ export function App() {
             <svg viewBox="0 0 16 16" fill="currentColor" width="16" height="16"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0114.082 15H1.918a1.75 1.75 0 01-1.543-2.575L6.457 1.047zM8 5a.75.75 0 00-.75.75v2.5a.75.75 0 001.5 0v-2.5A.75.75 0 008 5zm1 6a1 1 0 11-2 0 1 1 0 012 0z"/></svg>
           </span>
           <span className="disclaimer-text">
-            The TAP and constraint data on this site is generated and curated with the assistance of an LLM. It is intended as a guide only and may contain mistakes, omissions, or inaccuracies. Always verify against the <a href={data.spec.url} target="_blank" rel="noopener noreferrer">official specification</a> and <a href="https://github.com/theupdateframework/taps" target="_blank" rel="noopener noreferrer">TAP repository</a>.
+            The TAP and constraint data on this site is generated and curated with the assistance of an LLM. It is intended as a guide only and may contain mistakes, omissions, or inaccuracies. Always verify against the <a href={safeHref(data.spec.url)} target="_blank" rel="noopener noreferrer">official specification</a> and <a href="https://github.com/theupdateframework/taps" target="_blank" rel="noopener noreferrer">TAP repository</a>.
           </span>
           <button
             className="disclaimer-dismiss"
@@ -508,7 +507,7 @@ export function App() {
         </div>
 
         <nav className="header-links">
-          <a href={data.spec.url} target="_blank" rel="noopener noreferrer">Specification v{data.spec.version}</a>
+          <a href={safeHref(data.spec.url)} target="_blank" rel="noopener noreferrer">Specification v{data.spec.version}</a>
           <a href="https://theupdateframework.io" target="_blank" rel="noopener noreferrer">theupdateframework.io</a>
           <a href="https://github.com/theupdateframework/taps" target="_blank" rel="noopener noreferrer">TAP Repository</a>
           <a href="https://github.com/theupdateframework/specification" target="_blank" rel="noopener noreferrer">Spec Source</a>
@@ -693,7 +692,7 @@ export function App() {
                   <h2>Security Impact</h2>
                   {securityImpacts.map(tap => (
                     <div key={tap.tap} className="security-section">
-                      <h3><ShieldIcon /> <a href={tap.url} target="_blank" rel="noopener noreferrer">TAP {tap.tap}</a>: {tap.title}</h3>
+                      <h3><ShieldIcon /> <a href={safeHref(tap.url)} target="_blank" rel="noopener noreferrer">TAP {tap.tap}</a>: {tap.title}</h3>
                       <p>{tap.securityImpact.description}</p>
                       <div className="mitigates-list">
                         {tap.securityImpact.mitigates.map(a => (
