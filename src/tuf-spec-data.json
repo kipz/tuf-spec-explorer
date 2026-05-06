@@ -134,7 +134,7 @@
       "pouf_documents": {
         "id": "C-POUF",
         "description": "Implementations MUST define a POUF document specifying their choices for signature envelope, hash algorithms, key types, and other implementation-specific parameters (TAP 11 — already incorporated)",
-        "specSection": "protocol-operations-usage-and-format-pouf-documents",
+        "specSection": "pouf-documents",
         "status": "active"
       }
     }
@@ -162,7 +162,7 @@
       "tap": 11,
       "title": "Using POUFs for Interoperability",
       "status": "Accepted",
-      "summary": "Defines Protocol and Operations for Update Framework (POUFs) to standardize implementation-specific choices like envelope format, hash algorithms, and key types."
+      "summary": "Defines Protocol, Operations, Usage, and Format (POUF) documents to standardize implementation-specific choices like wireline format, hash algorithms, and key types."
     }
   ],
   "taps": [
@@ -257,6 +257,12 @@
           "detail": "Scope limitation ensures that trust anchors and consistency roles remain under central control."
         }
       ],
+      "incompatibilities": [
+        {
+          "description": "Clients must download and verify the rotation chain — older clients cannot process rotate metadata files.",
+          "severity": "breaking"
+        }
+      ],
       "securityImpact": {
         "mitigates": ["Vulnerability to key compromises"],
         "description": "Reduces time-to-remediation for key compromise from 'wait for delegator' to 'immediate self-service.'"
@@ -339,6 +345,12 @@
           "constraintId": "C-NULLKEY",
           "description": "Reserved null key constant that signals self-revocation when used as a rotation target.",
           "detail": "Snapshot metadata must list all rotate files to ensure clients process revocations."
+        }
+      ],
+      "incompatibilities": [
+        {
+          "description": "Clients must download and verify the revocation chain (null-key rotate files) — older clients without TAP 8/20 support cannot process them.",
+          "severity": "breaking"
         }
       ],
       "securityImpact": {
@@ -443,7 +455,7 @@
       "url": "https://github.com/theupdateframework/taps/blob/master/tap16.md",
       "summary": "Replaces the monolithic snapshot metadata file with a Merkle tree structure, reducing per-client download from O(N) to O(log N) for repositories with many delegations.",
       "dependencies": [],
-      "requiresMajorBump": false,
+      "requiresMajorBump": true,
       "constraintChanges": [
         {
           "type": "relaxed",
@@ -451,6 +463,12 @@
           "before": "Snapshot metadata lists version numbers for all targets metadata",
           "after": "Snapshot can use a Merkle tree where each leaf contains a targets metadata version. Clients download only the Merkle path for their target, verified against the tree root in timestamp metadata.",
           "detail": "Requires third-party auditors to verify full tree consistency (rollback protection). Reduces snapshot from ~380MB to ~800B for 50M targets metadata files."
+        }
+      ],
+      "incompatibilities": [
+        {
+          "description": "Old clients will not recognize the merkle_root field in timestamp metadata; once a repository deploys snapshot Merkle trees, pre-TAP-16 clients can no longer update.",
+          "severity": "breaking"
         }
       ],
       "securityImpact": {
