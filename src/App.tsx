@@ -325,12 +325,27 @@ function IncorporatedTapCard({ tap }: { tap: { tap: number; title: string; statu
 }
 
 function TapCard({ tap, active, onToggle, implementationCount }: { tap: Tap; active: boolean; onToggle: () => void; implementationCount: number }) {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.target !== e.currentTarget) return
+    if (e.key === ' ' || e.key === 'Enter') {
+      e.preventDefault()
+      onToggle()
+    }
+  }
   return (
-    <div className={`tap-card ${active ? 'active' : ''}`} onClick={onToggle}>
+    <div
+      className={`tap-card ${active ? 'active' : ''}`}
+      onClick={onToggle}
+      onKeyDown={handleKeyDown}
+      role="switch"
+      aria-checked={active}
+      aria-label={`Toggle TAP ${tap.tap}: ${tap.title}`}
+      tabIndex={0}
+    >
       <div className="tap-card-header">
         <a href={safeHref(tap.url)} target="_blank" rel="noopener noreferrer" className="tap-number" onClick={e => e.stopPropagation()}>TAP {tap.tap}</a>
         <span className="tap-title">{tap.title}</span>
-        <div className={`toggle ${active ? 'on' : ''}`} />
+        <div className={`toggle ${active ? 'on' : ''}`} aria-hidden="true" />
       </div>
       <div className="tap-meta">
         <span className="badge badge-status">{tap.status}</span>
@@ -398,8 +413,8 @@ export function App() {
   return (
     <div className="app">
       {!disclaimerDismissed && (
-        <div className="disclaimer-banner" role="alert">
-          <span className="disclaimer-icon">
+        <div className="disclaimer-banner">
+          <span className="disclaimer-icon" aria-hidden="true">
             <svg viewBox="0 0 16 16" fill="currentColor" width="16" height="16"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0114.082 15H1.918a1.75 1.75 0 01-1.543-2.575L6.457 1.047zM8 5a.75.75 0 00-.75.75v2.5a.75.75 0 001.5 0v-2.5A.75.75 0 008 5zm1 6a1 1 0 11-2 0 1 1 0 012 0z"/></svg>
           </span>
           <span className="disclaimer-text">
@@ -532,7 +547,7 @@ export function App() {
           <span>editors: {data.spec.editors.join(', ')}</span>
         </div>
 
-        <div className="header-active-bar">
+        <div className="header-active-bar" aria-live="polite" aria-atomic="true">
           <span>{activeTaps.size} TAP{activeTaps.size !== 1 ? 's' : ''} selected</span>
           {activeTaps.size > 0 && (
             <button className="clear-btn" onClick={() => setActiveTaps(new Set())}>clear all</button>
@@ -541,9 +556,10 @@ export function App() {
       </header>
 
       <div className="layout">
-        <aside className="sidebar">
+        <aside className="sidebar" aria-label="TAP selector">
+          <h2 className="visually-hidden">TAPs</h2>
           <details className="sidebar-collapsible">
-            <summary><h2>Incorporated into Spec</h2></summary>
+            <summary><span className="sidebar-group-heading">Incorporated into Spec</span></summary>
             {data.incorporatedTaps.map(tap => (
               <IncorporatedTapCard key={tap.tap} tap={tap} />
             ))}
@@ -558,7 +574,7 @@ export function App() {
             if (taps.length === 0) return null
             return (
               <details key={group.status} className="sidebar-collapsible" open={group.defaultOpen || undefined}>
-                <summary><h2>{group.label}</h2></summary>
+                <summary><span className="sidebar-group-heading">{group.label}</span></summary>
                 {taps.map(tap => (
                   <TapCard
                     key={tap.tap}
@@ -573,23 +589,25 @@ export function App() {
           })}
         </aside>
 
-        <main className="main">
-          {depWarnings.map((w, i) => {
-            const isToggleable = data.taps.some(t => t.tap === w.missingDep)
-            return (
-              <div key={i} className="dep-warning">
-                <WarnIcon />
-                TAP {w.tap} depends on TAP {w.missingDep} which is not enabled.
-                {isToggleable ? (
-                  <button className="enable-dep-btn" onClick={() => toggleTap(w.missingDep)}>
-                    Enable TAP {w.missingDep}
-                  </button>
-                ) : (
-                  <> Enable TAP {w.missingDep} for full effect.</>
-                )}
-              </div>
-            )
-          })}
+        <main className="main" aria-label="TAP impact">
+          <div aria-live="polite">
+            {depWarnings.map((w, i) => {
+              const isToggleable = data.taps.some(t => t.tap === w.missingDep)
+              return (
+                <div key={i} className="dep-warning">
+                  <span aria-hidden="true"><WarnIcon /></span>
+                  TAP {w.tap} depends on TAP {w.missingDep} which is not enabled.
+                  {isToggleable ? (
+                    <button className="enable-dep-btn" onClick={() => toggleTap(w.missingDep)}>
+                      Enable TAP {w.missingDep}
+                    </button>
+                  ) : (
+                    <> Enable TAP {w.missingDep} for full effect.</>
+                  )}
+                </div>
+              )
+            })}
+          </div>
 
           {activeTaps.size === 0 ? (
             <div className="empty-state">
@@ -597,38 +615,28 @@ export function App() {
               <p>Toggle TAPs in the sidebar to visualise how they modify the TUF specification.</p>
             </div>
           ) : (
-            <>
-              <div className="summary-bar">
-                {stats.added > 0 && (
-                  <div className="summary-stat">
-                    <div className="stat-dot green" />
-                    <span className="stat-count">{stats.added}</span> added
-                  </div>
-                )}
-                {stats.relaxed > 0 && (
-                  <div className="summary-stat">
-                    <div className="stat-dot blue" />
-                    <span className="stat-count">{stats.relaxed}</span> relaxed
-                  </div>
-                )}
-                {stats.removed > 0 && (
-                  <div className="summary-stat">
-                    <div className="stat-dot red" />
-                    <span className="stat-count">{stats.removed}</span> removed
-                  </div>
-                )}
-                {stats.incompatible > 0 && (
-                  <div className="summary-stat">
-                    <div className="stat-dot amber" />
-                    <span className="stat-count">{stats.incompatible}</span> incompatible
-                  </div>
-                )}
-                <div className="summary-stat">
-                  <div className={`stat-dot ${supportingImplCount > 0 ? 'green' : 'red'}`} />
-                  <span className="stat-count">{supportingImplCount}</span> impl{supportingImplCount !== 1 ? 's' : ''} support{supportingImplCount === 1 ? 's' : ''} this
-                </div>
+            <div className="summary-bar" aria-live="polite" aria-atomic="true">
+              <div className={`summary-stat ${stats.added === 0 ? 'is-zero' : ''}`}>
+                <div className="stat-dot green" aria-hidden="true" />
+                <span className="stat-count">{stats.added}</span> added
               </div>
-            </>
+              <div className={`summary-stat ${stats.relaxed === 0 ? 'is-zero' : ''}`}>
+                <div className="stat-dot blue" aria-hidden="true" />
+                <span className="stat-count">{stats.relaxed}</span> relaxed
+              </div>
+              <div className={`summary-stat ${stats.removed === 0 ? 'is-zero' : ''}`}>
+                <div className="stat-dot red" aria-hidden="true" />
+                <span className="stat-count">{stats.removed}</span> removed
+              </div>
+              <div className={`summary-stat ${stats.incompatible === 0 ? 'is-zero' : ''}`}>
+                <div className="stat-dot amber" aria-hidden="true" />
+                <span className="stat-count">{stats.incompatible}</span> incompatible
+              </div>
+              <div className="summary-stat">
+                <div className={`stat-dot ${supportingImplCount > 0 ? 'green' : 'red'}`} aria-hidden="true" />
+                <span className="stat-count">{supportingImplCount}</span> impl{supportingImplCount !== 1 ? 's' : ''} support{supportingImplCount === 1 ? 's' : ''} this
+              </div>
+            </div>
           )}
 
           <div className="section">
@@ -713,14 +721,16 @@ export function App() {
                 </div>
               </div>
 
-              <div className="section">
-                <h2>Unchanged Constraints ({unchangedConstraints.length})</h2>
+              <details className="section unchanged-constraints">
+                <summary>
+                  <h2>Unchanged Constraints ({unchangedConstraints.length})</h2>
+                </summary>
                 <div className="constraint-grid">
                   {unchangedConstraints.map(c => (
                     <ConstraintCard key={c.id} constraint={c} />
                   ))}
                 </div>
-              </div>
+              </details>
             </>
           )}
         </main>
