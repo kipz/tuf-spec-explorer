@@ -354,6 +354,7 @@ export function App() {
   const [theme, setTheme] = useState<'light' | 'dark'>('light')
   const [activeTaps, setActiveTaps] = useState<Set<number>>(new Set())
   const [visibleTiers, setVisibleTiers] = useState<Set<ImplementationTier>>(new Set(['core']))
+  const [disclaimerDismissed, setDisclaimerDismissed] = useState(false)
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
@@ -397,6 +398,24 @@ export function App() {
 
   return (
     <div className="app">
+      {!disclaimerDismissed && (
+        <div className="disclaimer-banner" role="alert">
+          <span className="disclaimer-icon">
+            <svg viewBox="0 0 16 16" fill="currentColor" width="16" height="16"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0114.082 15H1.918a1.75 1.75 0 01-1.543-2.575L6.457 1.047zM8 5a.75.75 0 00-.75.75v2.5a.75.75 0 001.5 0v-2.5A.75.75 0 008 5zm1 6a1 1 0 11-2 0 1 1 0 012 0z"/></svg>
+          </span>
+          <span className="disclaimer-text">
+            The TAP and constraint data on this site is generated and curated with the assistance of an LLM. It is intended as a guide only and may contain mistakes, omissions, or inaccuracies. Always verify against the <a href={data.spec.url} target="_blank" rel="noopener noreferrer">official specification</a> and <a href="https://github.com/theupdateframework/taps" target="_blank" rel="noopener noreferrer">TAP repository</a>.
+          </span>
+          <button
+            className="disclaimer-dismiss"
+            onClick={() => setDisclaimerDismissed(true)}
+            aria-label="Dismiss disclaimer"
+            title="Dismiss"
+          >
+            <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M3.72 3.72a.75.75 0 011.06 0L8 6.94l3.22-3.22a.75.75 0 111.06 1.06L9.06 8l3.22 3.22a.75.75 0 11-1.06 1.06L8 9.06l-3.22 3.22a.75.75 0 01-1.06-1.06L6.94 8 3.72 4.78a.75.75 0 010-1.06z"/></svg>
+          </button>
+        </div>
+      )}
       <header>
         <div className="header-top">
           <div className="header-branding">
