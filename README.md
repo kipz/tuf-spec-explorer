@@ -8,6 +8,10 @@ An interactive single-page application for exploring how [TUF Augmentation Propo
 
 Toggle any combination of 15 TAPs and see how the spec constraints change, which TAPs interact (synergies, tensions, conflicts), dependency warnings, security impacts, and implementation coverage across 17 TUF client libraries — all computed in real time. The sidebar also lists 4 TAPs already incorporated into the spec (TAPs 6, 9, 10, 11).
 
+The current selection round-trips through the URL — share `?taps=4,19` with a colleague and they'll land on the same view.
+
+> **Note:** the live URL uses the project's previous name (`tuf-spec-explorer`); the source repo is now `tuf-tap-explorer`.
+
 ## Building and Running Locally
 
 **Prerequisites:** Node.js (v18+) and npm.
@@ -24,6 +28,12 @@ npm run build
 
 # Preview the production build
 npm run preview
+
+# Run linter, typecheck, tests, and data validation
+npm run lint
+npm run typecheck
+npm test
+npm run validate-data
 ```
 
 The dev server runs at `http://localhost:5173` by default.

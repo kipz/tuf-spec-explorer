@@ -27,6 +27,7 @@ export function TapCard({ tap, active, onToggle, implementationCount }: Props) {
       aria-checked={active}
       aria-label={`Toggle TAP ${tap.tap}: ${tap.title}`}
       tabIndex={0}
+      data-tap={tap.tap}
     >
       <div className="tap-card-header">
         <a

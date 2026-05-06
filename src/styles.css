@@ -354,6 +354,27 @@ nav.header-links a:hover {
   margin-bottom: 0.75rem;
 }
 
+.sidebar-search {
+  width: 100%;
+  font-family: inherit;
+  font-size: 0.85rem;
+  padding: 0.45rem 0.6rem;
+  margin-bottom: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+}
+
+.sidebar-search::placeholder {
+  color: var(--text-muted);
+}
+
+.sidebar-search:focus-visible {
+  outline-offset: 0;
+  border-color: var(--accent);
+}
+
 .sidebar-collapsible {
   margin-bottom: 0.75rem;
 }
@@ -1123,4 +1144,25 @@ a.tap-number:hover {
   .sidebar {
     position: static;
   }
+}
+
+@media print {
+  body { background: #fff; color: #000; }
+  .app { max-width: none; padding: 0; }
+  .disclaimer-banner,
+  .sidebar,
+  .theme-toggle,
+  .github-link,
+  .clear-btn,
+  .impl-tier-filters,
+  .enable-dep-btn { display: none !important; }
+  .layout { grid-template-columns: 1fr; }
+  .unchanged-constraints[open] summary,
+  .unchanged-constraints summary { display: none; }
+  .unchanged-constraints { display: block; }
+  a { color: #000; text-decoration: underline; }
+  .constraint-row,
+  .interaction-card,
+  .impl-card,
+  .security-section { page-break-inside: avoid; border: 1px solid #ccc; box-shadow: none; }
 }
