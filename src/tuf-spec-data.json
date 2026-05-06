@@ -546,6 +546,33 @@
         "mitigates": [],
         "description": "No new security properties. Leverages existing content-address integrity while adding TUF's trust delegation and key management."
       }
+    },
+    {
+      "tap": 21,
+      "title": "ML-DSA signing scheme for TUF metadata",
+      "status": "Draft",
+      "url": "https://github.com/theupdateframework/taps/pull/195",
+      "summary": "Adds a post-quantum signing scheme based on NIST FIPS 204 ML-DSA (Module-Lattice DSA, formerly Dilithium), with an application-level pre-hashing protocol so large TUF metadata can be signed by HSMs that require pure-mode signing.",
+      "dependencies": [],
+      "requiresMajorBump": false,
+      "constraintChanges": [
+        {
+          "type": "added",
+          "constraintId": "C-MLDSA-KEY",
+          "description": "New 'ml-dsa' keytype with parameter sets ml-dsa-44, ml-dsa-65, ml-dsa-87 (per FIPS 204) and PEM-encoded SubjectPublicKeyInfo public keys (RFC 9881).",
+          "detail": "Schemes are versioned as 'ml-dsa-<set>/<version>' so the cryptographic choices (hash, canonicalization) can be updated as a unit."
+        },
+        {
+          "type": "added",
+          "constraintId": "C-MLDSA-PREHASH",
+          "description": "Application-level pre-hashing for ML-DSA: signers send the HSM a fixed-length pre-signing string 'tuf' || <version> || H(canonical_metadata) rather than the full metadata.",
+          "detail": "Domain-separated pre-hash bounds HSM input size and avoids HashML-DSA while keeping ML-DSA in pure mode with empty context."
+        }
+      ],
+      "securityImpact": {
+        "mitigates": [],
+        "description": "Provides post-quantum signing for TUF metadata, future-proofing against adversaries with cryptanalytically relevant quantum computers. No spec-listed attack is directly mitigated since the existing attack list assumes classical adversaries."
+      }
     }
   ],
   "tapInteractions": [

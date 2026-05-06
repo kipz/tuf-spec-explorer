@@ -6,7 +6,7 @@ An interactive single-page application for exploring how [TUF Augmentation Propo
 
 ![TUF Spec Explorer](docs/demo.gif)
 
-Toggle any combination of 14 TAPs and see how the spec constraints change, which TAPs interact (synergies, tensions, conflicts), dependency warnings, security impacts, and implementation coverage across 17 TUF client libraries — all computed in real time. The sidebar also lists 4 TAPs already incorporated into the spec (TAPs 6, 9, 10, 11).
+Toggle any combination of 15 TAPs and see how the spec constraints change, which TAPs interact (synergies, tensions, conflicts), dependency warnings, security impacts, and implementation coverage across 17 TUF client libraries — all computed in real time. The sidebar also lists 4 TAPs already incorporated into the spec (TAPs 6, 9, 10, 11).
 
 ## Building and Running Locally
 
@@ -49,7 +49,7 @@ SpecData
 │   ├── attacks[]     # Attacks TUF mitigates
 │   └── constraints{} # 13 base spec constraints (C-KEYID, C-DELEG, C-POUF, etc.)
 ├── incorporatedTaps  # 4 TAPs already merged into the spec (6, 9, 10, 11)
-├── taps[]            # 14 toggleable TAPs with constraint changes and security impacts
+├── taps[]            # 15 toggleable TAPs with constraint changes and security impacts
 ├── tapInteractions[] # 42 cross-TAP interactions (synergies, tensions, conflicts, compounds)
 ├── implementations[] # TUF client libraries with TAP support tracking
 └── processTaps[]     # Process-oriented TAPs (1, 2) not modeled as constraint changes
