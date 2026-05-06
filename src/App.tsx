@@ -1,7 +1,20 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useMemo, useEffect } from 'react'
 import { specData as data } from './data'
 import { safeHref } from './lib/safe-href'
+import { useLocalStorage } from './hooks/useLocalStorage'
+import { useActiveTaps } from './hooks/useActiveTaps'
 import type { Tap, ConstraintChange, TapInteraction, Implementation, ImplementationTier } from './types'
+
+const TIER_SET_SERIALIZE = (s: Set<ImplementationTier>) => JSON.stringify([...s])
+const TIER_SET_DESERIALIZE = (raw: string): Set<ImplementationTier> => {
+  try {
+    const parsed = JSON.parse(raw)
+    if (Array.isArray(parsed)) return new Set(parsed.filter(v => typeof v === 'string')) as Set<ImplementationTier>
+  } catch {
+    // ignore malformed value
+  }
+  return new Set(['core'])
+}
 
 interface ResolvedConstraint {
   id: string;
@@ -364,27 +377,42 @@ function TapCard({ tap, active, onToggle, implementationCount }: { tap: Tap; act
   )
 }
 
+function readInitialTheme(): 'light' | 'dark' {
+  if (typeof window === 'undefined') return 'light'
+  try {
+    const stored = window.localStorage.getItem('theme')
+    if (stored === 'light' || stored === 'dark') return stored
+  } catch {
+    // ignore storage errors
+  }
+  if (window.matchMedia?.('(prefers-color-scheme: dark)').matches) return 'dark'
+  return 'light'
+}
+
 export function App() {
-  const [theme, setTheme] = useState<'light' | 'dark'>('light')
-  const [activeTaps, setActiveTaps] = useState<Set<number>>(new Set())
-  const [visibleTiers, setVisibleTiers] = useState<Set<ImplementationTier>>(new Set(['core']))
-  const [disclaimerDismissed, setDisclaimerDismissed] = useState(false)
+  const [theme, setTheme] = useLocalStorage<'light' | 'dark'>(
+    'theme',
+    readInitialTheme(),
+    v => v,
+    raw => (raw === 'dark' ? 'dark' : 'light'),
+  )
+  const { activeTaps, toggle: toggleTap, clear: clearTaps } = useActiveTaps()
+  const [visibleTiers, setVisibleTiers] = useLocalStorage<Set<ImplementationTier>>(
+    'visibleTiers',
+    new Set(['core']),
+    TIER_SET_SERIALIZE,
+    TIER_SET_DESERIALIZE,
+  )
+  const [disclaimerDismissed, setDisclaimerDismissed] = useLocalStorage<boolean>(
+    'disclaimer-llm-v1-dismissed',
+    false,
+    v => (v ? '1' : '0'),
+    raw => raw === '1',
+  )
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
   }, [theme])
-
-  const toggleTap = (tapNum: number) => {
-    setActiveTaps(prev => {
-      const next = new Set(prev)
-      if (next.has(tapNum)) {
-        next.delete(tapNum)
-      } else {
-        next.add(tapNum)
-      }
-      return next
-    })
-  }
 
   const constraints = useMemo(() => computeConstraints(activeTaps), [activeTaps])
   const activeInteractions = useMemo(() => computeActiveInteractions(activeTaps), [activeTaps])
@@ -550,7 +578,7 @@ export function App() {
         <div className="header-active-bar" aria-live="polite" aria-atomic="true">
           <span>{activeTaps.size} TAP{activeTaps.size !== 1 ? 's' : ''} selected</span>
           {activeTaps.size > 0 && (
-            <button className="clear-btn" onClick={() => setActiveTaps(new Set())}>clear all</button>
+            <button className="clear-btn" onClick={clearTaps}>clear all</button>
           )}
         </div>
       </header>
