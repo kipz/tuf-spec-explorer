@@ -599,13 +599,6 @@ a.tap-number:hover {
   font-size: 0.875rem;
 }
 
-.constraint-spec-section {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  margin-top: 0.25rem;
-}
-
 .change-indicator {
   display: inline-flex;
   align-items: center;
