@@ -2,7 +2,7 @@ import { chromium } from 'playwright'
 import GIFEncoder from 'gif-encoder-2'
 import { PNG } from 'pngjs'
 import { writeFileSync } from 'fs'
-import { execSync, spawn, type ChildProcess } from 'child_process'
+import { spawn, type ChildProcess } from 'child_process'
 
 const WIDTH = 1280
 const HEIGHT = 800
