@@ -72,6 +72,11 @@ export function App() {
     document.documentElement.setAttribute('data-theme', theme)
   }, [theme])
 
+  useEffect(() => {
+    const base = 'TUF Spec Explorer'
+    document.title = activeTaps.size > 0 ? `${base} — ${activeTaps.size} selected` : base
+  }, [activeTaps.size])
+
   const constraints = useMemo(() => computeConstraints(data, activeTaps), [activeTaps])
   const activeInteractions = useMemo(() => computeActiveInteractions(data, activeTaps), [activeTaps])
   const depWarnings = useMemo(() => checkDependencyWarnings(data, activeTaps), [activeTaps])

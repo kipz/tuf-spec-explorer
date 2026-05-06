@@ -71,10 +71,8 @@ async function main() {
     }
   }
 
-  // Helper to click nth tap-card (0-indexed) in the sidebar under "Toggle TAPs"
-  async function toggleTap(index: number) {
-    const cards = page.locator('.sidebar .tap-card')
-    await cards.nth(index).click()
+  async function toggleTap(tapNumber: number) {
+    await page.locator(`.sidebar [data-tap="${tapNumber}"]`).click()
     await page.waitForTimeout(100)
   }
 
@@ -83,16 +81,16 @@ async function main() {
   // 1. Initial empty state - light theme
   await frame(2000)
 
-  // 2. Toggle TAP 4 (Multiple Repository Consensus) - index 1
-  await toggleTap(1)
-  await frame(1200)
-
-  // 3. Toggle TAP 3 (Multi-role Delegations) - index 0
-  await toggleTap(0)
-  await frame(1200)
-
-  // 4. Toggle TAP 8 (Key Rotation via Root) - index 4
+  // 2. Toggle TAP 4 (Multiple Repository Consensus)
   await toggleTap(4)
+  await frame(1200)
+
+  // 3. Toggle TAP 3 (Multi-role Delegations)
+  await toggleTap(3)
+  await frame(1200)
+
+  // 4. Toggle TAP 8 (Key Rotation via Root)
+  await toggleTap(8)
   await frame(1200)
 
   // 5. Scroll down to show interactions and constraints
@@ -111,8 +109,8 @@ async function main() {
   await page.waitForTimeout(100)
   await frame(1500)
 
-  // 8. Toggle TAP 15 (Succinct Hashed Bin Delegations) - index 10
-  await toggleTap(10)
+  // 8. Toggle TAP 15 (Succinct Hashed Bin Delegations)
+  await toggleTap(15)
   await frame(1200)
 
   // 9. Scroll down briefly in dark mode
