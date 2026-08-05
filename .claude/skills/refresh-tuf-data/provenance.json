@@ -1,0 +1,29 @@
+{
+  "_meaning": "Hashes of the upstream TAP bodies as of the refresh that wrote this file. A later run compares against them to say which TAPs changed. This records which revisions were looked at \u2014 it is not a claim that every derived field was re-derived from scratch. See verified/notVerified below.",
+  "tapsCommit": "8b22d9c5846684e1c327fd7c9093a8c635adb863",
+  "specCommit": "743c8a026b6edeaa5e64d247c68a31dc9786b5b2",
+  "taps": {
+    "1": "7e761870c71ad8c346a273fa906d70c8fa3139a8c53c978386d4ee1aafea0612",
+    "2": "1771c8a02fdc0d3a2879d8529e46758db19a125cfee5d052468c51cd833e665d",
+    "3": "c0351738beab3aa04f9ad4ad71f4ce411a4baf089fd44dc1b783a00d0f66e3e2",
+    "4": "1339680efe133a5351276b5290bf3a2d2aebe256b3e56d337f0e205ae9d9bc85",
+    "5": "c383f2e67b2a1b4fefa8ed014346e2c886dfceb51a5786529a1a21353c1d5a82",
+    "6": "8d06db7a4547a37748126bf9ec557f51849fecc6a9fc24ece1d07f8e54e2cbef",
+    "7": "ee6941db0b5f3509a314b37d7a735024a92233ffa0a3ad5bdfa18052921e1fdd",
+    "8": "e15c83c3d46042ed2b7e041093a91bcf3eb14651d9276766ee85db2979eb5438",
+    "9": "3179c4c73076f9ea6e2534c77085d8aebfa17981604beae0bba3c55e58d579c7",
+    "10": "9975a0488e91b5fd571146953763dc46a3aa27c158517f584a370dde3ff42bfe",
+    "11": "1a010ee2c7c580b670491a45cad9cb3befa1ccf5d069888f0131384a8ab0a990",
+    "12": "45239bc02e8b5c65eaf90a2f59ba5fdd50dd0f64610afc4a3d0a822900437c7f",
+    "13": "79a4ee12fd9cb42444b74ccc9d3328e32615d185d78c5573eefe95ae5b92292e",
+    "14": "78275a89e046c68e7357cdb287c8973a1f00cab19e69797a1a682b21ab429c01",
+    "15": "10113265dfba169de8aee0acb8ca283db3f6ca369ab6119728996d7533507de1",
+    "16": "d39fe559abd4816d1e4fb266895dbbde9773273fc68ae0a22bf7d703ff2a2316",
+    "17": "419a53ff9bf5459da2336587277d6b238fa124a4108fcdc4b66873be8a794426",
+    "18": "82a739e25e26ee6255bc2f63c0df9ddd07fbbfcb8361876ef730c58f7ce3825c",
+    "19": "a0a509bca3b6831e9ea46802944b3582895947bbd5c40d8931dea925b5207b45",
+    "20": "593b9085aa3654b45983dd9c133b80d55fa54f59d7bb6ac5947cf68bc321169f",
+    "21": "cb50c766c62f6eac4097748a57ea92d4aefa7b96b322d401268b8d3e2a62cdac"
+  },
+  "note": "Refresh of 2026-08-05. Verified against these TAP revisions: securityImpact.mitigates are all spec.attacks members; declared dependencies all traceable to their TAP body; requiresMajorBump agrees with every TAP's Backwards Compatibility section (15/15); every snake_case identifier quoted in constraintChanges appears in its TAP body; all 9 relaxed/removed base-constraint changes carry before+after with before echoing the base text. NOT re-derived from scratch: the semantic content of constraintChanges, the 42 tapInteractions, and the tapSupport matrix beyond python-tuf and go-tuf v2 TAP 15."
+}

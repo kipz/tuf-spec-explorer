@@ -21,6 +21,7 @@ import re
 import subprocess
 import sys
 from dataclasses import dataclass, field
+from difflib import SequenceMatcher
 from pathlib import Path
 
 TAPS_REPO = "https://github.com/theupdateframework/taps.git"
@@ -57,11 +58,11 @@ def repo_identity(url: str) -> str:
     `url.git@github.com:.insteadOf https://github.com/` rewrites clone URLs to
     SSH, so the origin we stored never matches the HTTPS URL we asked for.
     """
-    cleaned = url.strip().removesuffix(".git")
+    cleaned = url.strip().lower().removesuffix(".git")
     cleaned = re.sub(r"^(https?|ssh|git)://", "", cleaned)
     cleaned = re.sub(r"^[^@/]+@", "", cleaned)  # strip user@
     cleaned = cleaned.replace(":", "/", 1)  # scp-style host:owner/repo
-    return re.sub(r"/+", "/", cleaned).lower()
+    return re.sub(r"/+", "/", cleaned)
 
 
 class ParseError(RuntimeError):
@@ -632,6 +633,32 @@ def check_spec_sections(data: dict, diff: dict) -> Report:
     return report
 
 
+def check_readme_tap_titles(readme: str, upstream_taps: list[dict]) -> Report:
+    """The appendix labels each TAP link with a description. Those labels are
+    hand-written paraphrases and drift from the real titles unnoticed, because
+    nothing about a wrong label breaks the build — a reader just learns the wrong
+    subject for a TAP.
+    """
+    report = Report()
+    titles = {t["tap"]: t["title"] for t in upstream_taps}
+    for num, label in re.findall(
+        r"/taps/blob/master/tap(\d+)\.md\)\s*[—-]\s*([^\n(]+)", readme
+    ):
+        num = int(num)
+        upstream_title = titles.get(num)
+        if not upstream_title:
+            continue
+        cleaned = re.sub(r"\s*\(incorporated\)\s*$", "", label).strip().rstrip(".")
+        ratio = SequenceMatcher(None, cleaned.lower(), upstream_title.lower()).ratio()
+        if ratio < 0.7:
+            report.add(
+                "docs",
+                f"README.md labels TAP {num} {cleaned!r} but its upstream title is "
+                f"{upstream_title!r}",
+            )
+    return report
+
+
 def check_readme_counts(readme: str, data: dict) -> Report:
     """README.md quotes counts in prose and in the data-model appendix; they
     silently rot when the data changes."""
@@ -715,6 +742,10 @@ def main() -> int:
         "--write-provenance",
         action="store_true",
         help="record current upstream TAP hashes so the next run can detect body changes",
+    )
+    parser.add_argument(
+        "--provenance-note",
+        help="what was actually verified in this refresh, recorded alongside the hashes",
     )
     parser.add_argument("--json", action="store_true", help="print the drift report as JSON")
     args = parser.parse_args()
@@ -808,6 +839,7 @@ def main() -> int:
         check_spec_sections(data, spec["sectionDiff"]),
         check_conformance(data, conformance_clients, available=conf_commit is not None),
         check_readme_counts(readme_path.read_text(), data) if readme_path.exists() else Report(),
+        check_readme_tap_titles(readme_path.read_text(), taps) if readme_path.exists() else Report(),
     ):
         for group, messages in extra.groups.items():
             for message in messages:
@@ -817,17 +849,21 @@ def main() -> int:
 
     if args.write_provenance:
         provenance_path.parent.mkdir(parents=True, exist_ok=True)
-        provenance_path.write_text(
-            json.dumps(
-                {
-                    "tapsCommit": taps_commit,
-                    "specCommit": spec_commit,
-                    "taps": {str(t["tap"]): t["sha256"] for t in taps},
-                },
-                indent=2,
-            )
-            + "\n"
-        )
+        record = {
+            "_meaning": (
+                "Hashes of the upstream TAP bodies as of the refresh that wrote this file. "
+                "A later run compares against them to say which TAPs changed. This records "
+                "which revisions were looked at — it is not a claim that every derived field "
+                "was re-derived from scratch. See verified/notVerified below."
+            ),
+            "tapsCommit": taps_commit,
+            "specCommit": spec_commit,
+            "taps": {str(t["tap"]): t["sha256"] for t in taps},
+        }
+        if args.provenance_note:
+            record["note"] = args.provenance_note
+        provenance_path.parent.mkdir(parents=True, exist_ok=True)
+        provenance_path.write_text(json.dumps(record, indent=2) + "\n")
 
     if args.json:
         print(json.dumps(report.groups, indent=2))

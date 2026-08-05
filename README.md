@@ -144,16 +144,16 @@ The data model was constructed by analyzing the following primary sources:
   - [TAP 11](https://github.com/theupdateframework/taps/blob/master/tap11.md) — Using POUFs for Interoperability (incorporated)
   - [TAP 3](https://github.com/theupdateframework/taps/blob/master/tap3.md) — Multi-role Delegations
   - [TAP 4](https://github.com/theupdateframework/taps/blob/master/tap4.md) — Multiple Repository Consensus
-  - [TAP 5](https://github.com/theupdateframework/taps/blob/master/tap5.md) — Setting URLs for Roles on Repositories
+  - [TAP 5](https://github.com/theupdateframework/taps/blob/master/tap5.md) — Setting URLs for roles in the root metadata file
   - [TAP 7](https://github.com/theupdateframework/taps/blob/master/tap7.md) — Conformance Testing
-  - [TAP 8](https://github.com/theupdateframework/taps/blob/master/tap8.md) — Key Rotation via Root
-  - [TAP 12](https://github.com/theupdateframework/taps/blob/master/tap12.md) — Improving Delegation
-  - [TAP 13](https://github.com/theupdateframework/taps/blob/master/tap13.md) — User Selection of Top-Level Targets
+  - [TAP 8](https://github.com/theupdateframework/taps/blob/master/tap8.md) — Key rotation and explicit self-revocation
+  - [TAP 12](https://github.com/theupdateframework/taps/blob/master/tap12.md) — Improving keyid flexibility
+  - [TAP 13](https://github.com/theupdateframework/taps/blob/master/tap13.md) — User Selection of the Top-Level Targets Files Through Mapping Metadata
   - [TAP 14](https://github.com/theupdateframework/taps/blob/master/tap14.md) — Managing TUF Versions
   - [TAP 15](https://github.com/theupdateframework/taps/blob/master/tap15.md) — Succinct Hashed Bin Delegations
   - [TAP 16](https://github.com/theupdateframework/taps/blob/master/tap16.md) — Snapshot Merkle Trees
-  - [TAP 17](https://github.com/theupdateframework/taps/blob/master/tap17.md) — Remove Target Paths from Snapshot
-  - [TAP 18](https://github.com/theupdateframework/taps/blob/master/tap18.md) — Sigstore/Fulcio Integration
+  - [TAP 17](https://github.com/theupdateframework/taps/blob/master/tap17.md) — Remove Signature Wrapper from the TUF Specification
+  - [TAP 18](https://github.com/theupdateframework/taps/blob/master/tap18.md) — Ephemeral identity verification using sigstore's Fulcio for TUF developer key management
   - [TAP 19](https://github.com/theupdateframework/taps/blob/master/tap19.md) — Content Addressable Targets
   - [TAP 20](https://github.com/theupdateframework/taps/blob/master/tap20.md) — Self-Revocation
   - [TAP 21](https://github.com/theupdateframework/taps/blob/master/tap21.md) — ML-DSA Signing Scheme for TUF Metadata

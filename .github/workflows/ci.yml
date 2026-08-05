@@ -24,4 +24,5 @@ jobs:
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test -- --run
+      - run: npm run test:skill
       - run: npm run build

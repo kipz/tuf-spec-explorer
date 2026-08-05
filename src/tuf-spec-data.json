@@ -565,8 +565,8 @@
         {
           "type": "added",
           "constraintId": "C-MLDSA-PREHASH",
-          "description": "Application-level pre-hashing for ML-DSA: signers send the HSM a fixed-length pre-signing string 'tuf' || <version> || H(canonical_metadata) rather than the full metadata.",
-          "detail": "Domain-separated pre-hash bounds HSM input size and avoids HashML-DSA while keeping ML-DSA in pure mode with empty context."
+          "description": "Application-level pre-hashing for ML-DSA: raw metadata is never signed. Signers send the HSM a fixed-length pre-signing byte string 0x74 || 0x75 || 0x66 || version || H(MSG), where MSG is the canonicalized metadata representation, rather than the full metadata.",
+          "detail": "The single-byte version (0x01 is the only one defined) selects both the hash function and the canonicalization scheme. Domain separation uses the ASCII bytes for 'tuf'. Pure ML-DSA with an empty context, avoiding HashML-DSA. Verifiers MUST reconstruct the signed bytes and MUST NOT infer the parameter set or version from the signature bytes alone."
         }
       ],
       "securityImpact": {

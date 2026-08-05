@@ -11,6 +11,7 @@
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
     "test": "vitest",
+    "test:skill": "python3 -m unittest discover -s .claude/skills/refresh-tuf-data/scripts -p 'test_*.py'",
     "prebuild": "npm run validate-data",
     "build": "tsc && vite build",
     "preview": "vite preview",
