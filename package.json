@@ -18,13 +18,13 @@
     "record-demo": "tsx scripts/record-demo.ts"
   },
   "dependencies": {
-    "react": "^19.0.0",
+    "react": "^19.2.7",
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
     "@types/pngjs": "^6.0.5",
-    "@types/react": "^19.0.0",
+    "@types/react": "^19.2.16",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^4.3.0",
     "eslint": "^9.39.4",
