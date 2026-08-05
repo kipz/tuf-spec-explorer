@@ -1,0 +1,82 @@
+[
+  {
+    "query": "is the tuf data in the explorer still current? the spec version in the header looks like it's a release or two behind what's on theupdateframework.github.io",
+    "should_trigger": true
+  },
+  {
+    "query": "someone merged TAP 22 into theupdateframework/taps last week. do we need to do anything in tuf-tap-explorer or does it pick that up automatically",
+    "should_trigger": true
+  },
+  {
+    "query": "can you add sigstore-rust to the implementations list? it's in the tuf-conformance report now at 108/108 and we don't list it at all",
+    "should_trigger": true
+  },
+  {
+    "query": "pretty sure TAP 16 (snapshot merkle trees) got accepted upstream but our sidebar still shows it under Draft",
+    "should_trigger": true
+  },
+  {
+    "query": "clicked through to TAP 21 from the sidebar and it opened a github pull request rather than the actual tap doc. the taps repo has tap21.md on master now",
+    "should_trigger": true
+  },
+  {
+    "query": "the conformance percentages on the implementation cards look really thin — only python-tuf has one and I know tuf-js and sigstore-java are both tested upstream",
+    "should_trigger": true
+  },
+  {
+    "query": "TUF spec cut 1.0.36. what needs changing in src/tuf-spec-data.json, and do any of the 13 base constraints need their text rewritten?",
+    "should_trigger": true
+  },
+  {
+    "query": "I want to add a few tapInteractions involving TAP 21 — it presumably has tension with the other signing-scheme TAPs (9, 12, 17). can you work out which and write them up",
+    "should_trigger": true
+  },
+  {
+    "query": "demoing the tap explorer to the team friday, can you double check nothing in it has gone out of date since we last touched it",
+    "should_trigger": true
+  },
+  {
+    "query": "someone in #tuf said go-tuf's succinct bin delegations don't actually follow tap15. we claim level full for it — is that right?",
+    "should_trigger": true
+  },
+  {
+    "query": "the constraint cards in the explorer overflow on narrow screens, the detail text runs off the right edge on my phone. can you sort the css out",
+    "should_trigger": false
+  },
+  {
+    "query": "need to bump the theupdateframework/go-tuf dep in our go.mod from v2.4.1 to v2.4.2, and remember repositories.bzl needs updating too",
+    "should_trigger": false
+  },
+  {
+    "query": "explain how TAP 15 succinct hashed bin delegations actually work — I'm reviewing a design doc that leans on them and want to be sure I understand the bin index maths",
+    "should_trigger": false
+  },
+  {
+    "query": "add a button to the explorer that exports the currently selected TAP combination and resolved constraints as a downloadable json file",
+    "should_trigger": false
+  },
+  {
+    "query": "github is showing 9 dependabot vulnerabilities on kipz/tuf-spec-explorer's default branch, 5 of them high. can you triage and tell me which actually matter",
+    "should_trigger": false
+  },
+  {
+    "query": "the gh-pages deploy workflow for tuf-spec-explorer failed on my last push to main, something in the build step. can you look at the run logs",
+    "should_trigger": false
+  },
+  {
+    "query": "write me a scraper that pulls every sigstore-related project off the CNCF landscape page and dumps them to csv with their repo urls and star counts",
+    "should_trigger": false
+  },
+  {
+    "query": "src/data/selectors.test.ts has got slow now it's got 31 cases in it. can you speed the suite up, maybe share fixtures between the describe blocks",
+    "should_trigger": false
+  },
+  {
+    "query": "the explorer loses my dark mode preference and which TAPs I'd toggled whenever I hard refresh. can we persist that properly",
+    "should_trigger": false
+  },
+  {
+    "query": "our internal policy-core service parses TUF metadata for image signing — can you check it validates the spec_version field properly and rejects unknown major versions",
+    "should_trigger": false
+  }
+]

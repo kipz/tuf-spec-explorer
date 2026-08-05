@@ -63,6 +63,10 @@ start. Writing it up front stamps unreviewed analysis as verified and permanentl
 the drift. It belongs in git — committing it is what gives every clone the same
 baseline.
 
+Pass `--provenance-note` describing what you actually verified, and be honest about
+what you did not. A bare hash record implies every derived field was re-derived; the
+note is what stops the next reader believing that.
+
 Read the report before touching anything. It tells you which of the following
 sections you actually need.
 
@@ -113,11 +117,26 @@ check behaviour.
 
 ### 5. Update the docs the data contradicts
 
-The report's `docs` section catches this: `README.md` quotes counts in prose ("15
-TAPs", "42 interactions", "17 TUF client libraries", "13 base spec constraints", the
-synergy/tension/conflict breakdown) and lists every source URL in its appendix. Those
-numbers rot silently. Fix the ones the report flags, and add new sources to the
-appendix's resource list so the provenance stays auditable.
+The report's `docs` section catches this. `README.md` quotes counts in prose ("15
+TAPs", "42 interactions", "18 TUF client libraries", "13 base spec constraints", the
+synergy/tension/conflict breakdown), mentions the spec version in prose, and lists
+every TAP and implementation URL in its appendix — each with a hand-written label.
+Those all rot silently, and a wrong appendix label is the worst of them because it
+teaches a reader the wrong subject for a TAP with nothing to contradict it. The script
+compares each label against the upstream title, so fix whatever it flags.
+
+### 5a. If you changed the script, run its tests
+
+```bash
+npm run test:skill
+```
+
+`scripts/test_scrape_sources.py` covers the parsers, the drift checks and the cache
+safety guards, and it runs in CI. It is weighted towards failure behaviour on purpose:
+this script's recurring bug has been skipping a comparison when an extraction came
+back empty and then reporting the field clean, which is invisible and points the wrong
+way. If you add a check, add the malformed-input case too — and keep the tests offline,
+using a local bare repo where you need a real fetch.
 
 ### 6. Report back
 
