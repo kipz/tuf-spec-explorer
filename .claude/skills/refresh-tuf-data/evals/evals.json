@@ -59,7 +59,7 @@
         },
         {
           "id": "curated-analysis-preserved",
-          "text": "Curated analysis is left intact: still 42 tapInteractions, 17 implementations, 13 base constraints, and TAP 21 keeps its C-MLDSA-KEY and C-MLDSA-PREHASH constraintChanges"
+          "text": "Curated analysis is left intact: still 42 tapInteractions, 18 implementations, 13 base constraints, and TAP 21 keeps its C-MLDSA-KEY and C-MLDSA-PREHASH constraintChanges"
         },
         {
           "id": "tap21-status-still-draft",
@@ -75,7 +75,7 @@
       "id": 2,
       "prompt": "I want to add sigstore-python to the implementations list in the explorer, and check whether python-tuf actually supports TAP 15 the way we claim.",
       "name": "implementation-support-evidence",
-      "expected_output": "A new implementations[] entry for sigstore-python with id/name/language/githubUrl/status/tier/specVersion and an evidence-based tapSupport array, README.md appendix updated with its repo URL, and a cited verdict on python-tuf's TAP 15 support. The correct verdict is 'partial', not 'full': SuccinctRoles is implemented and tested, but tap15.md requires succinct bins to be non-terminating and python-tuf hardcodes them terminating in Delegations.get_roles_for_target. Finding the mechanism is not the same as conforming to the TAP. validate-data passes.",
+      "expected_output": "A new implementations[] entry for sigstore-python with id/name/language/githubUrl/status/tier/specVersion and an evidence-based tapSupport array, README.md appendix updated with its repo URL, and a cited verdict on python-tuf's TAP 15 support. The correct verdict is 'partial', not 'full': SuccinctRoles is implemented and tested, but tap15.md requires succinct bins to be non-terminating and python-tuf hardcodes them terminating in Delegations.get_roles_for_target. Finding the mechanism is not the same as conforming to the TAP. README count goes 18 -> 19. validate-data passes.",
       "files": [],
       "assertions": [
         {
@@ -104,7 +104,7 @@
         },
         {
           "id": "readme-count-updated",
-          "text": "README.md's implementation count is updated from 17 to 18 TUF client libraries"
+          "text": "README.md's implementation count is updated from 18 to 19 TUF client libraries, matching the length of implementations[] after the addition"
         },
         {
           "id": "validate-data-passes",

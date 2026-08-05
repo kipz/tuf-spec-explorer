@@ -70,6 +70,17 @@ class ParseError(RuntimeError):
     "no drift" for a value it never actually compared."""
 
 
+class CacheSafetyError(RuntimeError):
+    """The cache directory is not ours to destroy. Never caught — downgrading this
+    to "upstream unavailable" would hide the very thing it protects against."""
+
+
+# Written into each clone we create. Its presence is the only thing that proves a
+# checkout is disposable: a matching origin and a clean tree can both be true of
+# someone's real working clone, which may also hold unpushed commits.
+OWNED_MARKER = ".refresh-tuf-data-cache"
+
+
 def sync_repo(url: str, dest: Path, offline: bool) -> str:
     """Shallow-clone or fast-forward dest. Returns the checked-out commit sha."""
     if not dest.exists():
@@ -77,27 +88,41 @@ def sync_repo(url: str, dest: Path, offline: bool) -> str:
             raise RuntimeError(f"--offline but no cached clone at {dest}")
         dest.parent.mkdir(parents=True, exist_ok=True)
         run(["git", "clone", "--depth", "1", "--quiet", url, str(dest)])
+        (dest / OWNED_MARKER).write_text(
+            "Disposable clone created by .claude/skills/refresh-tuf-data.\n"
+            "This file marks the directory as safe to reset --hard. Delete it and the\n"
+            "script will refuse to touch this checkout.\n"
+        )
     elif not offline:
-        # `git reset --hard` below is destructive, so refuse to touch a checkout
-        # that isn't the clone we made — a stray --cache path could otherwise
-        # point at real work.
+        # `git reset --hard` below is unrecoverable, so only ever run it on a clone
+        # this script created. Requiring our own marker is the only check that
+        # actually establishes that: a matching origin and a clean tree can both
+        # hold for a real working clone carrying unpushed commits.
+        if not (dest / OWNED_MARKER).exists():
+            raise CacheSafetyError(
+                f"refusing to touch {dest}: it has no {OWNED_MARKER} marker, so this "
+                "script did not create it and cannot safely reset it. Point --cache at a "
+                "throwaway directory, or delete this one if it really is disposable."
+            )
         try:
             origin = run(["git", "remote", "get-url", "origin"], cwd=dest).strip()
         except RuntimeError as exc:
-            raise RuntimeError(f"{dest} exists but is not a git checkout: {exc}") from exc
+            raise CacheSafetyError(f"{dest} exists but is not a git checkout: {exc}") from exc
         if repo_identity(origin) != repo_identity(url):
-            raise RuntimeError(
+            raise CacheSafetyError(
                 f"refusing to reset {dest}: its origin is {origin!r}, expected {url!r}. "
                 "Point --cache at a directory this script owns."
             )
-        # Matching origin is not enough — this could be someone's own clone of the
-        # same upstream repo with work in progress, and the reset below is
-        # unrecoverable. Only ever discard a clean tree.
-        dirty = run(["git", "status", "--porcelain"], cwd=dest).strip()
+        dirty = [
+            line
+            for line in run(["git", "status", "--porcelain"], cwd=dest).splitlines()
+            if line.strip() and not line.endswith(OWNED_MARKER)
+        ]
         if dirty:
-            raise RuntimeError(
-                f"refusing to reset {dest}: it has uncommitted changes:\n{dirty}\n"
-                "This script discards local state on refresh, so point --cache at a "
+            raise CacheSafetyError(
+                f"refusing to reset {dest}: it has uncommitted changes:\n"
+                + "\n".join(dirty)
+                + "\nThis script discards local state on refresh, so point --cache at a "
                 "throwaway directory instead of a working clone."
             )
         run(["git", "fetch", "--depth", "1", "--quiet", "origin"], cwd=dest)
@@ -292,23 +317,52 @@ def parse_conformance_clients(conf_dir: Path) -> list[dict[str, str]]:
             "renamed, so the conformance-tested client list cannot be read. Fix the path "
             "in this script rather than skipping the implementations check."
         )
-    text = workflow.read_text()
-    clients = []
-    for block in re.finditer(
-        r"-\s*name:\s*(\S+)\s*\n\s*repo:\s*(\S+)", text
-    ):
-        clients.append(
-            {
-                "name": block.group(1),
-                "repo": block.group(2),
-                "url": f"https://github.com/{block.group(2)}",
-            }
+    lines = workflow.read_text().splitlines()
+
+    # Scope to the strategy matrix's `include:` block. The workflow has other
+    # `- name:` list items (an upload artifact, the pages environment) that are
+    # not clients, so parsing the whole file misreads them as malformed entries.
+    include_at = next(
+        (i for i, line in enumerate(lines) if re.match(r"^\s*include:\s*$", line)), None
+    )
+    if include_at is None:
+        raise ParseError(
+            f"{workflow} has no strategy matrix `include:` block — the workflow layout has "
+            "changed, so the conformance-tested client list cannot be read. Fix the parser "
+            "in this script rather than skipping the implementations check."
         )
+    indent = len(lines[include_at]) - len(lines[include_at].lstrip())
+    block: list[str] = []
+    for line in lines[include_at + 1 :]:
+        if line.strip() and (len(line) - len(line.lstrip())) <= indent:
+            break
+        block.append(line)
+
+    # Read keys per entry rather than requiring `name` and `repo` to be adjacent
+    # and in that order: a reordered or extended entry would otherwise be skipped
+    # while its neighbours still parsed, leaving the list quietly incomplete.
+    entries = re.split(r"^\s*-\s+(?=\w+:)", "\n".join(block), flags=re.MULTILINE)[1:]
+    clients: list[dict[str, str]] = []
+    partial: list[str] = []
+    for entry in entries:
+        fields = dict(re.findall(r"^\s*(\w+):\s*(\S+)\s*$", entry, re.MULTILINE))
+        name, repo = fields.get("name"), fields.get("repo")
+        if name and repo and "/" in repo:
+            clients.append({"name": name, "repo": repo, "url": f"https://github.com/{repo}"})
+        else:
+            partial.append(name or f"<unnamed entry: {sorted(fields)}>")
+
     if not clients:
         raise ParseError(
             f"{workflow} exists but no client matrix entries were parsed from it — its "
             "format has probably changed. Fix the pattern in this script; an empty list "
             "would disable the implementations cross-check without saying so."
+        )
+    if partial:
+        raise ParseError(
+            f"{workflow}: parsed {len(clients)} client(s) but these entries have a name "
+            f"and no readable repo: {', '.join(partial)}. Partial parsing would drop "
+            "clients from the cross-check silently, so fix the pattern in this script."
         )
     return clients
 
@@ -662,8 +716,14 @@ def main() -> int:
     conf_dir = args.cache / "tuf-conformance"
     taps_commit = sync_repo(TAPS_REPO, taps_dir, args.offline)
     spec_commit = sync_repo(SPEC_REPO, spec_dir, args.offline)
+    # The conformance repo is the one optional source: a refresh is still useful
+    # without it. Tolerate it being unreachable, but never swallow a
+    # CacheSafetyError — that would report a refusal to touch someone's clone as
+    # ordinary upstream unavailability.
     try:
         conf_commit = sync_repo(CONFORMANCE_REPO, conf_dir, args.offline)
+    except CacheSafetyError:
+        raise
     except RuntimeError:
         conf_commit = None
 

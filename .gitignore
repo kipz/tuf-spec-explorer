@@ -5,3 +5,5 @@ dist/
 .env.*
 *.log
 .claude/skills/*/.cache/
+__pycache__/
+*.pyc
