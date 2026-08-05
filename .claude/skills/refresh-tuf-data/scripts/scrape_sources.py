@@ -127,6 +127,18 @@ def sync_repo(url: str, dest: Path, offline: bool) -> str:
             )
         run(["git", "fetch", "--depth", "1", "--quiet", "origin"], cwd=dest)
         head = run(["git", "rev-parse", "--abbrev-ref", "origin/HEAD"], cwd=dest).strip()
+        # The marker says we created this clone, not that nothing was committed
+        # into it since. Anything not reachable from the remote would be lost.
+        try:
+            ahead = run(["git", "rev-list", "--count", f"{head}..HEAD"], cwd=dest).strip()
+        except RuntimeError:
+            ahead = "0"  # shallow history can't be walked; the reset is a no-op anyway
+        if ahead not in ("", "0"):
+            raise CacheSafetyError(
+                f"refusing to reset {dest}: it has {ahead} commit(s) not present on {head}, "
+                "which the reset would discard. Move that work elsewhere, or delete this "
+                "directory if it is disposable."
+            )
         run(["git", "reset", "--hard", "--quiet", head], cwd=dest)
     return run(["git", "rev-parse", "HEAD"], cwd=dest).strip()
 
@@ -463,10 +475,12 @@ def check_drift(data: dict, upstream: dict, provenance: dict | None) -> Report:
         up = up_taps[num]
         entry = toggleable.get(num) or incorporated.get(num) or process.get(num)
         placeholder = "<" in up["title"]  # tap2.md is the submission template
-        if entry.get("title") and not placeholder and entry["title"].lower() != up["title"].lower():
+        # Not guarded on the data title being non-empty: a missing title is drift
+        # in its own right, and skipping the comparison would report it as clean.
+        if not placeholder and (entry.get("title") or "").lower() != up["title"].lower():
             report.add(
                 "taps",
-                f"TAP {num} title: data has {entry['title']!r}, upstream is {up['title']!r}",
+                f"TAP {num} title: data has {entry.get('title')!r}, upstream is {up['title']!r}",
             )
         if num in incorporated:
             # Incorporated TAPs carry the header's terminal status ("Final"), not
