@@ -75,7 +75,7 @@
       "id": 2,
       "prompt": "I want to add sigstore-python to the implementations list in the explorer, and check whether python-tuf actually supports TAP 15 the way we claim.",
       "name": "implementation-support-evidence",
-      "expected_output": "A new implementations[] entry for sigstore-python with id/name/language/githubUrl/status/tier/specVersion and an evidence-based tapSupport array, README.md appendix updated with its repo URL, and a cited verdict on python-tuf's TAP 15 support (succinct_roles appears in tuf/api/_payload.py and examples, so 'full' is confirmed). validate-data passes.",
+      "expected_output": "A new implementations[] entry for sigstore-python with id/name/language/githubUrl/status/tier/specVersion and an evidence-based tapSupport array, README.md appendix updated with its repo URL, and a cited verdict on python-tuf's TAP 15 support. The correct verdict is 'partial', not 'full': SuccinctRoles is implemented and tested, but tap15.md requires succinct bins to be non-terminating and python-tuf hardcodes them terminating in Delegations.get_roles_for_target. Finding the mechanism is not the same as conforming to the TAP. validate-data passes.",
       "files": [],
       "assertions": [
         {
@@ -93,6 +93,10 @@
         {
           "id": "python-tuf-tap15-verdict-cited",
           "text": "Gives a verdict on python-tuf's TAP 15 support citing concrete evidence (e.g. succinct_roles / SuccinctRoles in tuf/api/_payload.py or the succinct hash bin delegation example), rather than restating the existing data"
+        },
+        {
+          "id": "tap15-deviation-detected",
+          "text": "Detects that python-tuf deviates from TAP 15 (succinct bins hardcoded terminating vs the TAP's non-terminating requirement) and downgrades the level from full to partial. This is the discriminating assertion: a presence-only check on succinct_roles wrongly concludes 'full'."
         },
         {
           "id": "readme-source-list-updated",

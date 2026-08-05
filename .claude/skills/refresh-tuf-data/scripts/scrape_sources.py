@@ -50,6 +50,12 @@ def run(cmd: list[str], cwd: Path | None = None) -> str:
     return result.stdout
 
 
+class ParseError(RuntimeError):
+    """An upstream document did not yield a field we require. Raised rather than
+    tolerated: a scraper that silently drops a field it cannot parse reports
+    "no drift" for a value it never actually compared."""
+
+
 def sync_repo(url: str, dest: Path, offline: bool) -> str:
     """Shallow-clone or fast-forward dest. Returns the checked-out commit sha."""
     if not dest.exists():
@@ -58,10 +64,62 @@ def sync_repo(url: str, dest: Path, offline: bool) -> str:
         dest.parent.mkdir(parents=True, exist_ok=True)
         run(["git", "clone", "--depth", "1", "--quiet", url, str(dest)])
     elif not offline:
+        # `git reset --hard` below is destructive, so refuse to touch a checkout
+        # that isn't the clone we made — a stray --cache path could otherwise
+        # point at real work.
+        try:
+            origin = run(["git", "remote", "get-url", "origin"], cwd=dest).strip()
+        except RuntimeError as exc:
+            raise RuntimeError(f"{dest} exists but is not a git checkout: {exc}") from exc
+        if origin.removesuffix(".git") != url.removesuffix(".git"):
+            raise RuntimeError(
+                f"refusing to reset {dest}: its origin is {origin!r}, expected {url!r}. "
+                "Point --cache at a directory this script owns."
+            )
         run(["git", "fetch", "--depth", "1", "--quiet", "origin"], cwd=dest)
         head = run(["git", "rev-parse", "--abbrev-ref", "origin/HEAD"], cwd=dest).strip()
         run(["git", "reset", "--hard", "--quiet", head], cwd=dest)
     return run(["git", "rev-parse", "HEAD"], cwd=dest).strip()
+
+
+def validate_upstream(upstream: dict) -> None:
+    """Fail loudly when an extraction came back empty.
+
+    Every drift check compares a data value against a scraped one. If the scrape
+    silently yields nothing — because upstream restructured a document and a
+    pattern stopped matching — the comparison is skipped and the report claims
+    the field is clean. That failure is invisible and points the wrong way, so
+    treat an empty required extraction as a hard error instead.
+    """
+    problems: list[str] = []
+    spec = upstream["spec"]
+    for field in ("version", "lastModified"):
+        if not spec.get(field):
+            problems.append(f"spec.{field} could not be parsed from tuf-spec.md's metadata block")
+    for field, what in (
+        ("editors", "Editor: lines in the metadata block"),
+        ("attacks", "the goals-to-protect-against-specific-attacks bullet list"),
+        ("anchors", "{#section} anchors"),
+        ("incorporatedTaps", "the tuf-augmentation-proposal-tap-support section"),
+    ):
+        if not spec.get(field):
+            problems.append(f"spec.{field} came back empty — check {what}")
+
+    if not upstream["taps"]:
+        problems.append("no tapN.md files were found in the TAP repo checkout")
+    for tap in upstream["taps"]:
+        if not tap["title"]:
+            problems.append(f"TAP {tap['tap']} has no Title: in its header block")
+        if not tap["status"]:
+            problems.append(f"TAP {tap['tap']} has no status in the README index or its header")
+
+    if problems:
+        raise ParseError(
+            "upstream parsing failed, so drift cannot be assessed:\n"
+            + "\n".join(f"  - {p}" for p in problems)
+            + "\n\nThe upstream document format has probably changed; fix the parsers "
+            "in this script rather than trusting a report built on missing values."
+        )
 
 
 # ---------------------------------------------------------------- parsing
@@ -237,18 +295,20 @@ def check_drift(data: dict, upstream: dict, provenance: dict | None) -> Report:
     spec = data.get("spec", {})
     up_spec = upstream["spec"]
 
-    if up_spec["version"] and spec.get("version") != up_spec["version"]:
+    # validate_upstream() has already established these are non-empty, so an
+    # unguarded comparison cannot silently pass on a failed parse.
+    if spec.get("version") != up_spec["version"]:
         report.add(
             "spec",
             f"spec.version: data has {spec.get('version')!r}, upstream is {up_spec['version']!r}",
         )
-    if up_spec["lastModified"] and spec.get("lastModified") != up_spec["lastModified"]:
+    if spec.get("lastModified") != up_spec["lastModified"]:
         report.add(
             "spec",
             f"spec.lastModified: data has {spec.get('lastModified')!r}, "
             f"upstream is {up_spec['lastModified']!r}",
         )
-    if up_spec["editors"] and spec.get("editors") != up_spec["editors"]:
+    if spec.get("editors") != up_spec["editors"]:
         report.add(
             "spec",
             f"spec.editors differ:\n    data:     {spec.get('editors')}\n"
@@ -256,7 +316,7 @@ def check_drift(data: dict, upstream: dict, provenance: dict | None) -> Report:
         )
 
     data_attacks = sorted(spec.get("attacks", []))
-    if up_spec["attacks"] and data_attacks != up_spec["attacks"]:
+    if data_attacks != up_spec["attacks"]:
         for missing in sorted(set(up_spec["attacks"]) - set(data_attacks)):
             report.add("spec", f"spec.attacks missing upstream attack {missing!r}")
         for extra in sorted(set(data_attacks) - set(up_spec["attacks"])):
@@ -265,7 +325,7 @@ def check_drift(data: dict, upstream: dict, provenance: dict | None) -> Report:
     anchors = upstream["spec"]["anchors"]
     for key, constraint in spec.get("constraints", {}).items():
         section = constraint.get("specSection")
-        if anchors and section and section not in anchors:
+        if section and section not in anchors:
             report.add(
                 "spec",
                 f"spec.constraints.{key}.specSection {section!r} is not a section "
@@ -278,6 +338,24 @@ def check_drift(data: dict, upstream: dict, provenance: dict | None) -> Report:
     process = {t["tap"]: t for t in data.get("processTaps", [])}
     classified = set(toggleable) | set(incorporated) | set(process)
     up_taps = {t["tap"]: t for t in upstream["taps"]}
+
+    # Each TAP belongs to exactly one of the three arrays. A set union hides a
+    # TAP listed twice, and the renderer would show it twice.
+    groups = {"taps[]": toggleable, "incorporatedTaps[]": incorporated, "processTaps[]": process}
+    for num in sorted(classified):
+        holders = [name for name, group in groups.items() if num in group]
+        if len(holders) > 1:
+            report.add(
+                "taps",
+                f"TAP {num} appears in more than one array ({', '.join(holders)}); "
+                "each TAP belongs to exactly one",
+            )
+    for name, group in groups.items():
+        seen: set[int] = set()
+        for entry in data.get(name.rstrip("[]"), []):
+            if entry["tap"] in seen:
+                report.add("taps", f"TAP {entry['tap']} is listed twice within {name}")
+            seen.add(entry["tap"])
 
     for num in sorted(set(up_taps) - classified):
         up = up_taps[num]
@@ -336,19 +414,18 @@ def check_drift(data: dict, upstream: dict, provenance: dict | None) -> Report:
                 )
 
     up_incorporated = {t["tap"] for t in up_spec["incorporatedTaps"]}
-    if up_incorporated:
-        for num in sorted(up_incorporated - set(incorporated)):
-            report.add(
-                "taps",
-                f"TAP {num} is listed as incorporated by tuf-spec.md but is not in "
-                "incorporatedTaps[]",
-            )
-        for num in sorted(set(incorporated) - up_incorporated):
-            report.add(
-                "taps",
-                f"TAP {num} is in incorporatedTaps[] but tuf-spec.md does not list it as "
-                "incorporated into this major version",
-            )
+    for num in sorted(up_incorporated - set(incorporated)):
+        report.add(
+            "taps",
+            f"TAP {num} is listed as incorporated by tuf-spec.md but is not in "
+            "incorporatedTaps[]",
+        )
+    for num in sorted(set(incorporated) - up_incorporated):
+        report.add(
+            "taps",
+            f"TAP {num} is in incorporatedTaps[] but tuf-spec.md does not list it as "
+            "incorporated into this major version",
+        )
 
     # --- body changes since the last recorded refresh
     if provenance is None:
@@ -595,6 +672,8 @@ def main() -> int:
         "conformanceClients": conformance_clients,
     }
 
+    validate_upstream(upstream)
+
     serialisable = json.loads(json.dumps(upstream, default=lambda o: sorted(o)))
     (out_dir / "upstream.json").write_text(json.dumps(serialisable, indent=2) + "\n")
 
@@ -673,4 +752,8 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    try:
+        sys.exit(main())
+    except (ParseError, RuntimeError) as error:
+        print(f"error: {error}", file=sys.stderr)
+        sys.exit(1)
