@@ -1,7 +1,7 @@
 {
   "spec": {
-    "version": "1.0.34",
-    "lastModified": "2026-01-22",
+    "version": "1.0.35",
+    "lastModified": "2026-07-15",
     "url": "https://theupdateframework.github.io/specification/latest/",
     "editors": [
       "Justin Cappos (NYU)",
@@ -551,7 +551,7 @@
       "tap": 21,
       "title": "ML-DSA signing scheme for TUF metadata",
       "status": "Draft",
-      "url": "https://github.com/theupdateframework/taps/pull/195",
+      "url": "https://github.com/theupdateframework/taps/blob/master/tap21.md",
       "summary": "Adds a post-quantum signing scheme based on NIST FIPS 204 ML-DSA (Module-Lattice DSA, formerly Dilithium), with an application-level pre-hashing protocol so large TUF metadata can be signed by HSMs that require pure-mode signing.",
       "dependencies": [],
       "requiresMajorBump": false,
@@ -922,10 +922,10 @@
       "conformancePercent": 100,
       "tapSupport": [
         {"tap": 12, "level": "full"},
-        {"tap": 15, "level": "full"},
+        {"tap": 15, "level": "partial", "notes": "SuccinctRoles in the Metadata API and resolved by ngclient during target search, but all succinct bins are hardcoded terminating (_payload.py get_roles_for_target) whereas TAP 15 makes them non-terminating by default"},
         {"tap": 17, "level": "partial", "notes": "DSSE experimental"}
       ],
-      "notes": "Reference implementation"
+      "notes": "Reference implementation. TAP 15 succinct_roles is a pre-standard extension: terminating-only, and upstream documents that the metadata it emits is rejected by spec-compliant clients"
     },
     {
       "id": "go-tuf-v2",
@@ -937,8 +937,9 @@
       "specVersion": "1.0",
       "tapSupport": [
         {"tap": 4, "level": "full"},
-        {"tap": 15, "level": "full"}
-      ]
+        {"tap": 15, "level": "partial", "notes": "SuccinctRoles in metadata/types.go and resolved during target search, but GetRolesForTarget hardcodes Terminating: true whereas TAP 15 makes succinct bins non-terminating by default"}
+      ],
+      "notes": "Same TAP 15 terminating deviation as python-tuf, reached independently"
     },
     {
       "id": "tuf-js",
@@ -948,6 +949,7 @@
       "status": "active",
       "tier": "core",
       "specVersion": "1.0",
+      "conformancePercent": 99,
       "tapSupport": [],
       "notes": "npm package for Node.js ecosystem"
     },
@@ -1036,6 +1038,7 @@
       "status": "active",
       "tier": "sigstore",
       "specVersion": "1.0",
+      "conformancePercent": 80,
       "tapSupport": [],
       "notes": "TUF for trust root distribution only"
     },
@@ -1049,6 +1052,18 @@
       "specVersion": "1.0",
       "tapSupport": [],
       "notes": "TUF client in sigstore"
+    },
+    {
+      "id": "sigstore-rust",
+      "name": "sigstore-rust",
+      "language": "Rust",
+      "githubUrl": "https://github.com/sigstore/sigstore-rust",
+      "status": "active",
+      "tier": "sigstore",
+      "specVersion": "1.0",
+      "conformancePercent": 100,
+      "tapSupport": [],
+      "notes": "Native TUF client in its own sigstore-tuf crate; fully conformant with the 1.x spec but implements no TAP mechanisms"
     },
     {
       "id": "notary",

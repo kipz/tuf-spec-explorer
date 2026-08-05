@@ -1,0 +1,116 @@
+{
+  "skill_name": "refresh-tuf-data",
+  "evals": [
+    {
+      "id": 0,
+      "name": "freshness-audit",
+      "prompt": "Has anything changed upstream since we last updated the explorer data? Give me a rundown of what's stale.",
+      "expected_output": "A drift report naming the real findings: spec version 1.0.34 -> 1.0.35, lastModified 2026-01-22 -> 2026-07-15, and TAP 21's url still pointing at PR 195 instead of the merged tap21.md on master. Should NOT edit the data file, since the user only asked for an audit.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "spec-version-drift",
+          "text": "Reports that the TUF spec has moved from 1.0.34 (in the data) to 1.0.35 upstream"
+        },
+        {
+          "id": "spec-date-drift",
+          "text": "Reports that spec.lastModified is stale: data says 2026-01-22, upstream spec is dated 2026-07-15"
+        },
+        {
+          "id": "tap21-url-drift",
+          "text": "Reports that TAP 21's url still points at the taps PR (pull/195) rather than the merged blob/master/tap21.md"
+        },
+        {
+          "id": "audit-only-no-edits",
+          "text": "Does not modify src/tuf-spec-data.json \u2014 the user asked for an audit, not a refresh"
+        },
+        {
+          "id": "no-fabricated-drift",
+          "text": "Reports no drift that is not real: no invented new TAPs, no claimed status changes for TAPs whose status actually matches upstream, no claimed missing TAPs"
+        },
+        {
+          "id": "distinguishes-facts-from-analysis",
+          "text": "Distinguishes mechanically checkable staleness (spec metadata, TAP inventory) from the derived analysis whose freshness cannot be confirmed, rather than implying the whole file was verified"
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "prompt": "TAP 21 finally merged upstream. Update our data for it and make sure the spec metadata is current too.",
+      "name": "targeted-tap-and-spec-fix",
+      "expected_output": "src/tuf-spec-data.json edited: TAP 21 url changed to https://github.com/theupdateframework/taps/blob/master/tap21.md, spec.version 1.0.35, spec.lastModified 2026-07-15. npm run validate-data passes. Curated analysis (constraintChanges, tapInteractions, securityImpact) left intact.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "tap21-url-fixed",
+          "text": "TAP 21's url in src/tuf-spec-data.json is exactly https://github.com/theupdateframework/taps/blob/master/tap21.md"
+        },
+        {
+          "id": "spec-version-updated",
+          "text": "spec.version is 1.0.35"
+        },
+        {
+          "id": "spec-date-updated",
+          "text": "spec.lastModified is 2026-07-15"
+        },
+        {
+          "id": "validate-data-passes",
+          "text": "The edited src/tuf-spec-data.json passes the repo's schema and cross-reference validation (npm run validate-data)"
+        },
+        {
+          "id": "curated-analysis-preserved",
+          "text": "Curated analysis is left intact: still 42 tapInteractions, 17 implementations, 13 base constraints, and TAP 21 keeps its C-MLDSA-KEY and C-MLDSA-PREHASH constraintChanges"
+        },
+        {
+          "id": "tap21-status-still-draft",
+          "text": "TAP 21's status remains Draft, matching the upstream TAP repo README (merging the file did not make it Accepted)"
+        },
+        {
+          "id": "no-unrequested-rewrites",
+          "text": "Does not rewrite unrelated derived content (other TAPs' summaries, security impacts, or interaction descriptions) that nothing upstream changed"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I want to add sigstore-python to the implementations list in the explorer, and check whether python-tuf actually supports TAP 15 the way we claim.",
+      "name": "implementation-support-evidence",
+      "expected_output": "A new implementations[] entry for sigstore-python with id/name/language/githubUrl/status/tier/specVersion and an evidence-based tapSupport array, README.md appendix updated with its repo URL, and a cited verdict on python-tuf's TAP 15 support (succinct_roles appears in tuf/api/_payload.py and examples, so 'full' is confirmed). validate-data passes.",
+      "files": [],
+      "assertions": [
+        {
+          "id": "sigstore-python-entry-added",
+          "text": "A new implementations[] entry for sigstore-python exists with id, name, language, githubUrl, status, tier and specVersion populated"
+        },
+        {
+          "id": "entry-schema-valid",
+          "text": "The new entry uses only allowed enum values (tier one of core/third-party/sigstore/system, status one of active/pre-production/alpha/archived) and a valid https githubUrl"
+        },
+        {
+          "id": "tap-support-evidence-based",
+          "text": "The new entry's tapSupport is backed by stated evidence from the sigstore-python repository (file paths, symbols or search hits), or is empty with an explicit statement that no evidence was found \u2014 not asserted without support"
+        },
+        {
+          "id": "python-tuf-tap15-verdict-cited",
+          "text": "Gives a verdict on python-tuf's TAP 15 support citing concrete evidence (e.g. succinct_roles / SuccinctRoles in tuf/api/_payload.py or the succinct hash bin delegation example), rather than restating the existing data"
+        },
+        {
+          "id": "readme-source-list-updated",
+          "text": "README.md's appendix source list includes the sigstore-python repository URL"
+        },
+        {
+          "id": "readme-count-updated",
+          "text": "README.md's implementation count is updated from 17 to 18 TUF client libraries"
+        },
+        {
+          "id": "validate-data-passes",
+          "text": "The edited src/tuf-spec-data.json passes the repo's schema and cross-reference validation (npm run validate-data)"
+        },
+        {
+          "id": "no-fabricated-conformance",
+          "text": "Does not invent a conformancePercent for sigstore-python without citing tuf-conformance results"
+        }
+      ]
+    }
+  ]
+}

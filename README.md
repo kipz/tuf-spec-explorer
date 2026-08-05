@@ -6,7 +6,7 @@ An interactive single-page application for exploring how [TUF Augmentation Propo
 
 ![TUF Spec Explorer](docs/demo.gif)
 
-Toggle any combination of 15 TAPs and see how the spec constraints change, which TAPs interact (synergies, tensions, conflicts), dependency warnings, security impacts, and implementation coverage across 17 TUF client libraries — all computed in real time. The sidebar also lists 4 TAPs already incorporated into the spec (TAPs 6, 9, 10, 11).
+Toggle any combination of 15 TAPs and see how the spec constraints change, which TAPs interact (synergies, tensions, conflicts), dependency warnings, security impacts, and implementation coverage across 18 TUF client libraries — all computed in real time. The sidebar also lists 4 TAPs already incorporated into the spec (TAPs 6, 9, 10, 11).
 
 The current selection round-trips through the URL — share `?taps=4,19` with a colleague and they'll land on the same view.
 
@@ -54,7 +54,7 @@ All TAP and constraint data lives in [`src/tuf-spec-data.json`](src/tuf-spec-dat
 
 ```
 SpecData
-├── spec              # Base TUF spec metadata (v1.0.34)
+├── spec              # Base TUF spec metadata (v1.0.35)
 │   ├── roles         # root, targets, snapshot, timestamp
 │   ├── attacks[]     # Attacks TUF mitigates
 │   └── constraints{} # 13 base spec constraints (C-KEYID, C-DELEG, C-POUF, etc.)
@@ -136,7 +136,7 @@ When TAPs are toggled in the UI, constraints are resolved as follows:
 
 The data model was constructed by analyzing the following primary sources:
 
-- [TUF Specification v1.0.34](https://theupdateframework.github.io/specification/latest/) — the base constraints and role definitions
+- [TUF Specification v1.0.35](https://theupdateframework.github.io/specification/latest/) — the base constraints and role definitions
 - [TAP repository](https://github.com/theupdateframework/taps) — individual TAP documents:
   - [TAP 6](https://github.com/theupdateframework/taps/blob/master/tap6.md) — Include Specification Version in Metadata (incorporated)
   - [TAP 9](https://github.com/theupdateframework/taps/blob/master/tap9.md) — Mandatory Metadata Signing Schemes (incorporated)
@@ -156,6 +156,7 @@ The data model was constructed by analyzing the following primary sources:
   - [TAP 18](https://github.com/theupdateframework/taps/blob/master/tap18.md) — Sigstore/Fulcio Integration
   - [TAP 19](https://github.com/theupdateframework/taps/blob/master/tap19.md) — Content Addressable Targets
   - [TAP 20](https://github.com/theupdateframework/taps/blob/master/tap20.md) — Self-Revocation
+  - [TAP 21](https://github.com/theupdateframework/taps/blob/master/tap21.md) — ML-DSA Signing Scheme for TUF Metadata
 
 - TUF implementation repositories — TAP support and conformance data was gathered from:
   - [python-tuf](https://github.com/theupdateframework/python-tuf) — Python (core)
@@ -170,6 +171,7 @@ The data model was constructed by analyzing the following primary sources:
   - [sigstore-go](https://github.com/sigstore/sigstore-go) — Go (sigstore)
   - [sigstore-java](https://github.com/sigstore/sigstore-java) — Java (sigstore)
   - [sigstore-ruby](https://github.com/sigstore/sigstore-ruby) — Ruby (sigstore)
+  - [sigstore-rust](https://github.com/sigstore/sigstore-rust) — Rust (sigstore)
   - [Notary](https://github.com/notaryproject/notary) — Go (system, archived)
   - [TUF-on-CI](https://github.com/theupdateframework/tuf-on-ci) — Python (system)
   - [RSTUF](https://github.com/repository-service-tuf/repository-service-tuf) — Python (system)
