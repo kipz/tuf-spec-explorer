@@ -1,5 +1,5 @@
 {
-  "_meaning": "Hashes of the upstream TAP bodies as of the refresh that wrote this file. A later run compares against them to say which TAPs changed. This records which revisions were looked at \u2014 it is not a claim that every derived field was re-derived from scratch. See verified/notVerified below.",
+  "_meaning": "Hashes of the upstream TAP bodies as of the refresh that wrote this file. A later run compares against them to say which TAPs changed. This records which revisions were looked at \u2014 it is not a claim that every derived field was re-derived from scratch. The 'note' field, when present, says what that refresh actually verified and what it did not.",
   "tapsCommit": "8b22d9c5846684e1c327fd7c9093a8c635adb863",
   "specCommit": "743c8a026b6edeaa5e64d247c68a31dc9786b5b2",
   "taps": {

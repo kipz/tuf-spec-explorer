@@ -854,7 +854,8 @@ def main() -> int:
                 "Hashes of the upstream TAP bodies as of the refresh that wrote this file. "
                 "A later run compares against them to say which TAPs changed. This records "
                 "which revisions were looked at — it is not a claim that every derived field "
-                "was re-derived from scratch. See verified/notVerified below."
+                "was re-derived from scratch. The 'note' field, when present, says what that "
+                "refresh actually verified and what it did not."
             ),
             "tapsCommit": taps_commit,
             "specCommit": spec_commit,
