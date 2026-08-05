@@ -50,6 +50,20 @@ def run(cmd: list[str], cwd: Path | None = None) -> str:
     return result.stdout
 
 
+def repo_identity(url: str) -> str:
+    """Reduce a git remote to 'host/owner/repo'.
+
+    Comparing remote URLs literally is wrong: a global
+    `url.git@github.com:.insteadOf https://github.com/` rewrites clone URLs to
+    SSH, so the origin we stored never matches the HTTPS URL we asked for.
+    """
+    cleaned = url.strip().removesuffix(".git")
+    cleaned = re.sub(r"^(https?|ssh|git)://", "", cleaned)
+    cleaned = re.sub(r"^[^@/]+@", "", cleaned)  # strip user@
+    cleaned = cleaned.replace(":", "/", 1)  # scp-style host:owner/repo
+    return re.sub(r"/+", "/", cleaned).lower()
+
+
 class ParseError(RuntimeError):
     """An upstream document did not yield a field we require. Raised rather than
     tolerated: a scraper that silently drops a field it cannot parse reports
@@ -71,10 +85,20 @@ def sync_repo(url: str, dest: Path, offline: bool) -> str:
             origin = run(["git", "remote", "get-url", "origin"], cwd=dest).strip()
         except RuntimeError as exc:
             raise RuntimeError(f"{dest} exists but is not a git checkout: {exc}") from exc
-        if origin.removesuffix(".git") != url.removesuffix(".git"):
+        if repo_identity(origin) != repo_identity(url):
             raise RuntimeError(
                 f"refusing to reset {dest}: its origin is {origin!r}, expected {url!r}. "
                 "Point --cache at a directory this script owns."
+            )
+        # Matching origin is not enough — this could be someone's own clone of the
+        # same upstream repo with work in progress, and the reset below is
+        # unrecoverable. Only ever discard a clean tree.
+        dirty = run(["git", "status", "--porcelain"], cwd=dest).strip()
+        if dirty:
+            raise RuntimeError(
+                f"refusing to reset {dest}: it has uncommitted changes:\n{dirty}\n"
+                "This script discards local state on refresh, so point --cache at a "
+                "throwaway directory instead of a working clone."
             )
         run(["git", "fetch", "--depth", "1", "--quiet", "origin"], cwd=dest)
         head = run(["git", "rev-parse", "--abbrev-ref", "origin/HEAD"], cwd=dest).strip()
@@ -256,10 +280,18 @@ def spec_section_diff(spec_dir: Path, from_version: str, offline: bool) -> dict[
 
 def parse_conformance_clients(conf_dir: Path) -> list[dict[str, str]]:
     """The publish-report workflow's matrix is the authoritative list of clients
-    under conformance test, and it is checked into the repo."""
+    under conformance test, and it is checked into the repo.
+
+    Raises rather than returning empty: an empty list would silently disable the
+    implementation cross-check while the report still looked complete.
+    """
     workflow = conf_dir / ".github" / "workflows" / "publish-report.yml"
     if not workflow.exists():
-        return []
+        raise ParseError(
+            f"{workflow} does not exist — the tuf-conformance workflow has been moved or "
+            "renamed, so the conformance-tested client list cannot be read. Fix the path "
+            "in this script rather than skipping the implementations check."
+        )
     text = workflow.read_text()
     clients = []
     for block in re.finditer(
@@ -271,6 +303,12 @@ def parse_conformance_clients(conf_dir: Path) -> list[dict[str, str]]:
                 "repo": block.group(2),
                 "url": f"https://github.com/{block.group(2)}",
             }
+        )
+    if not clients:
+        raise ParseError(
+            f"{workflow} exists but no client matrix entries were parsed from it — its "
+            "format has probably changed. Fix the pattern in this script; an empty list "
+            "would disable the implementations cross-check without saying so."
         )
     return clients
 
@@ -450,12 +488,20 @@ def check_drift(data: dict, upstream: dict, provenance: dict | None) -> Report:
     return report
 
 
-def check_conformance(data: dict, clients: list[dict[str, str]]) -> Report:
+def check_conformance(data: dict, clients: list[dict[str, str]], available: bool = True) -> Report:
     """Cross-check implementations[] against the clients upstream actually
     conformance-tests. Two blind spots this closes: a tested client we don't list
     at all, and a tested client whose conformancePercent we never recorded."""
     report = Report()
-    if not clients:
+    if not available:
+        # Surfaced as a finding, not just a header note, so it also reaches
+        # drift.json and --json consumers who never see stdout.
+        report.add(
+            "implementations",
+            "the tuf-conformance repo could not be reached, so the implementations "
+            "cross-check did NOT run — no conclusion either way about missing clients "
+            "or missing conformancePercent values",
+        )
         return report
     by_url = {i.get("githubUrl", "").rstrip("/"): i for i in data.get("implementations", [])}
     for client in clients:
@@ -686,7 +732,7 @@ def main() -> int:
     report = check_drift(data, upstream, provenance)
     for extra in (
         check_spec_sections(data, spec["sectionDiff"]),
-        check_conformance(data, conformance_clients),
+        check_conformance(data, conformance_clients, available=conf_commit is not None),
         check_readme_counts(readme_path.read_text(), data) if readme_path.exists() else Report(),
     ):
         for group, messages in extra.groups.items():
